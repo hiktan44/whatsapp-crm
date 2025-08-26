@@ -9,6 +9,12 @@ const qrcodeTerminal = require('qrcode-terminal');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase configuration
+const supabaseUrl = process.env.SUPABASE_URL || 'https://xvxiwcbiqiqzfqisrvib.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2eGl3Y2JpcWlxemZxaXNydmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxODgyMTUsImV4cCI6MjA3MTc2NDIxNX0.xXPa7e66odQd-ivYKa2ny4OSuXWya9FBQR8_wvRIJvg';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Express app setup
 const app = express();
@@ -430,6 +436,68 @@ app.post('/whatsapp/send', async (req, res) => {
         });
         
         console.log(`✅ HTTP API: Message sent successfully - ID: ${sentMessage.id._serialized}`);
+        
+        // Save message to Supabase
+        try {
+            // First, ensure contact exists
+            const { data: existingContact } = await supabase
+                .from('contacts')
+                .select('id')
+                .eq('whatsapp_id', whatsappId)
+                .single();
+            
+            let contactId = existingContact?.id;
+            
+            if (!contactId) {
+                // Create new contact
+                const { data: newContact, error: contactError } = await supabase
+                    .from('contacts')
+                    .insert({
+                        whatsapp_id: whatsappId,
+                        number: whatsappId.replace('@c.us', '').replace('@g.us', ''),
+                        name: whatsappId.replace('@c.us', '').replace('@g.us', ''),
+                        last_message_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+                
+                if (contactError) {
+                    console.error('❌ Error creating contact in Supabase:', contactError);
+                } else {
+                    contactId = newContact.id;
+                    console.log(`✅ Created new contact in Supabase: ${contactId}`);
+                }
+            }
+            
+            // Save message to Supabase
+            if (contactId) {
+                const { error: messageError } = await supabase
+                    .from('messages')
+                    .insert({
+                        whatsapp_message_id: sentMessage.id._serialized,
+                        contact_id: contactId,
+                        direction: 'outbound',
+                        content: message,
+                        message_type: type,
+                        status: 'sent',
+                        timestamp: new Date().toISOString()
+                    });
+                
+                if (messageError) {
+                    console.error('❌ Error saving message to Supabase:', messageError);
+                } else {
+                    console.log('✅ Message saved to Supabase successfully');
+                }
+                
+                // Update contact last message time
+                await supabase
+                    .from('contacts')
+                    .update({ last_message_at: new Date().toISOString() })
+                    .eq('id', contactId);
+            }
+        } catch (supabaseError) {
+            console.error('❌ Supabase operation failed:', supabaseError);
+        }
         
         res.json({
             success: true,

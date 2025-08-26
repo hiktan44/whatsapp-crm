@@ -1,10 +1,14 @@
 // Supabase Client for WhatsApp CRM
 class SupabaseClient {
     constructor() {
-        // Use environment variables or fallback to demo
-        this.supabaseUrl = window.SUPABASE_URL || 'demo';
-        this.supabaseKey = window.SUPABASE_ANON_KEY || 'demo';
-        this.isRealMode = this.supabaseUrl !== 'demo' && this.supabaseKey !== 'demo';
+        // Use environment variables, localStorage, or fallback to demo
+        this.supabaseUrl = window.SUPABASE_URL || 
+                          localStorage.getItem('supabase_url') || 
+                          'https://xvxiwcbiqiqzfqisrvib.supabase.co';
+        this.supabaseKey = window.SUPABASE_ANON_KEY || 
+                          localStorage.getItem('supabase_anon_key') || 
+                          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2eGl3Y2JpcWlxemZxaXNydmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxODgyMTUsImV4cCI6MjA3MTc2NDIxNX0.xXPa7e66odQd-ivYKa2ny4OSuXWya9FBQR8_wvRIJvg';
+        this.isRealMode = this.supabaseUrl !== 'demo' && this.supabaseKey !== 'demo' && this.supabaseUrl.includes('supabase.co');
         
         if (this.isRealMode) {
             this.initSupabase();

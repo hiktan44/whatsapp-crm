@@ -1,4 +1,7 @@
 // AI Assistant Module for WhatsApp CRM
+if (typeof window !== 'undefined' && window.AIAssistant) {
+    console.log('🔄 AI Assistant already loaded, reusing...');
+} else {
 class AIAssistant {
     constructor() {
         this.conversations = new Map();
@@ -702,3 +705,12 @@ const aiStyles = `
 
 // Inject styles
 document.head.insertAdjacentHTML('beforeend', aiStyles);
+
+// Close the conditional block
+}
+
+// Initialize only if not already done
+if (typeof window !== 'undefined' && !window.aiAssistant) {
+    window.aiAssistant = new AIAssistant();
+    console.log('✅ AI Assistant initialized');
+}
