@@ -3,6 +3,7 @@ node_modules/
 
 # WhatsApp Authentication Data
 whatsapp-auth/
+.wwebjs_cache/
 
 # Uploads
 uploads/
@@ -58,3 +59,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Local Netlify folder
+.netlify
