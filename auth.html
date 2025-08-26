@@ -41,6 +41,7 @@
                         type="text" 
                         id="username"
                         required
+                        autocomplete="username"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                         placeholder="admin"
                     >
@@ -55,6 +56,7 @@
                             type="password" 
                             id="password"
                             required
+                            autocomplete="current-password"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                             placeholder="••••••••"
                         >
@@ -121,12 +123,17 @@
     </div>
 
     <script>
-        // Authentication Logic
-        const credentials = {
+        // Authentication Logic - Global scope
+        window.credentials = {
             'admin': 'admin123',
             'demo': 'demo123',
             'user': 'password123'
         };
+        
+        // Backup credentials object
+        const credentials = window.credentials;
+        
+        console.log('🔧 Credentials initialized:', credentials);
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -146,10 +153,22 @@
             // Simulate authentication delay
             setTimeout(() => {
                 console.log('🔍 Checking credentials for:', username);
-                console.log('🔍 Expected password:', credentials[username]);
+                console.log('🔍 Available credentials object:', window.credentials);
+                console.log('🔍 Local credentials object:', credentials);
+                console.log('🔍 Expected password:', window.credentials[username]);
                 console.log('🔍 Provided password:', password);
                 
-                if (credentials[username] && credentials[username] === password) {
+                // Use trimmed values for comparison
+                const cleanUsername = username.trim();
+                const cleanPassword = password.trim();
+                const availableCredentials = window.credentials || credentials;
+                
+                console.log('🔍 Clean username:', cleanUsername);
+                console.log('🔍 Clean password:', cleanPassword);
+                console.log('🔍 Using credentials:', availableCredentials);
+                console.log('🔍 Expected for clean username:', availableCredentials[cleanUsername]);
+                
+                if (availableCredentials[cleanUsername] && availableCredentials[cleanUsername] === cleanPassword) {
                     console.log('✅ Authentication successful!');
                     // Success
                     loginBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Başarılı!';
@@ -211,6 +230,11 @@
         function fillDemoCredentials() {
             document.getElementById('username').value = 'admin';
             document.getElementById('password').value = 'admin123';
+            
+            console.log('🔧 Demo credentials filled:', {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            });
             
             // Add visual feedback
             const inputs = document.querySelectorAll('#username, #password');
