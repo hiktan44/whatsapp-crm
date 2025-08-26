@@ -364,9 +364,22 @@
         function redirectToCRM() {
             console.log('🚀 Redirecting to CRM Dashboard...');
             
-            // Direct redirect to Netlify production
-            window.open('https://leafy-zuccutto-202e83.netlify.app/index.html', '_blank');
-            console.log('✅ Opened Netlify production dashboard');
+            // Try custom domain first, fallback to Netlify default
+            const customDomain = 'https://prowhatsapp.org/index.html';
+            const fallbackDomain = 'https://whattan.netlify.app/index.html';
+            
+            // Check if custom domain is available
+            fetch('https://prowhatsapp.org', { method: 'HEAD', mode: 'no-cors' })
+                .then(() => {
+                    console.log('✅ Custom domain available, using prowhatsapp.org');
+                    window.open(customDomain, '_blank');
+                })
+                .catch(() => {
+                    console.log('⚠️ Custom domain not ready, using fallback URL');
+                    window.open(fallbackDomain, '_blank');
+                });
+            
+            console.log('🔗 Redirect initiated...');
         }
 
         // Check if user is already logged in

@@ -842,7 +842,13 @@
         }
 
         function openNetlifyDemo() {
-            window.open('https://leafy-zuccutto-202e83.netlify.app', '_blank');
+            // Try custom domain first, fallback to Netlify default
+            const customDomain = 'https://prowhatsapp.org/auth.html';
+            const fallbackDomain = 'https://whattan.netlify.app/auth.html';
+            
+            fetch('https://prowhatsapp.org', { method: 'HEAD', mode: 'no-cors' })
+                .then(() => window.open(customDomain, '_blank'))
+                .catch(() => window.open(fallbackDomain, '_blank'));
         }
 
         function watchDemo() {
