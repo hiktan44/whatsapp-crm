@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp CRM Pro - Giriş</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl mb-4">
+                <i class="fab fa-whatsapp text-green-500 text-2xl"></i>
+            </div>
+            <h1 class="text-white text-2xl font-bold">WhatsApp CRM Pro</h1>
+            <p class="text-white/80">Hesabınıza giriş yapın</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Kullanıcı Adı
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                        placeholder="admin"
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Şifre
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="password"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                            placeholder="••••••••"
+                        >
+                        <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye" id="passwordToggle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="rounded border-gray-300 text-green-500 focus:ring-green-500" id="remember">
+                        <span class="ml-2 text-sm text-gray-600">Beni hatırla</span>
+                    </label>
+                    <a href="#" class="text-sm text-green-600 hover:text-green-700">Şifremi unuttum?</a>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-500/20 transition-all font-medium"
+                    id="loginBtn"
+                >
+                    <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+                </button>
+            </form>
+
+            <!-- Demo Credentials -->
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Demo Hesabı:</h3>
+                <div class="text-sm text-gray-600">
+                    <p><strong>Kullanıcı Adı:</strong> admin</p>
+                    <p><strong>Şifre:</strong> admin123</p>
+                </div>
+                <button onclick="fillDemoCredentials()" class="mt-2 text-xs text-green-600 hover:text-green-700">
+                    <i class="fas fa-fill mr-1"></i>Demo bilgilerini doldur
+                </button>
+            </div>
+
+            <!-- Quick Access -->
+            <div class="mt-6 space-y-3">
+                <button onclick="quickAccess('local')" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                    <i class="fas fa-desktop mr-2 text-gray-600"></i>
+                    <span class="text-gray-700">Local Server (localhost:3025)</span>
+                </button>
+                <button onclick="quickAccess('cloud')" class="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all">
+                    <i class="fas fa-cloud mr-2 text-gray-600"></i>
+                    <span class="text-gray-700">Cloud Dashboard (Netlify)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white/80 text-sm">
+            <p>© 2025 WhatsApp CRM Pro. Tüm hakları saklıdır.</p>
+            <div class="flex justify-center space-x-4 mt-2">
+                <a href="landing.html" class="hover:text-white transition-colors">
+                    <i class="fas fa-home mr-1"></i>Ana Sayfa
+                </a>
+                <a href="#" class="hover:text-white transition-colors">
+                    <i class="fas fa-question-circle mr-1"></i>Yardım
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication Logic
+        const credentials = {
+            'admin': 'admin123',
+            'demo': 'demo123',
+            'user': 'password123'
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Show loading state
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
+            loginBtn.disabled = true;
+            
+            // Simulate authentication delay
+            setTimeout(() => {
+                if (credentials[username] && credentials[username] === password) {
+                    // Success
+                    loginBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Başarılı!';
+                    loginBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    loginBtn.classList.add('bg-green-600');
+                    
+                    // Store auth data
+                    if (remember) {
+                        localStorage.setItem('whatsapp_crm_auth', JSON.stringify({
+                            username: username,
+                            loginTime: new Date().toISOString(),
+                            remember: true
+                        }));
+                    } else {
+                        sessionStorage.setItem('whatsapp_crm_auth', JSON.stringify({
+                            username: username,
+                            loginTime: new Date().toISOString(),
+                            remember: false
+                        }));
+                    }
+                    
+                    // Redirect to CRM
+                    setTimeout(() => {
+                        redirectToCRM();
+                    }, 1000);
+                    
+                } else {
+                    // Error
+                    loginBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Hatalı bilgiler!';
+                    loginBtn.classList.remove('bg-green-500');
+                    loginBtn.classList.add('bg-red-500');
+                    
+                    setTimeout(() => {
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap';
+                        loginBtn.classList.remove('bg-red-500');
+                        loginBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                        loginBtn.disabled = false;
+                    }, 2000);
+                }
+            }, 1500);
+        });
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function fillDemoCredentials() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin123';
+            
+            // Add visual feedback
+            const inputs = document.querySelectorAll('#username, #password');
+            inputs.forEach(input => {
+                input.classList.add('bg-green-50', 'border-green-300');
+                setTimeout(() => {
+                    input.classList.remove('bg-green-50', 'border-green-300');
+                }, 1000);
+            });
+        }
+
+        function quickAccess(type) {
+            if (type === 'local') {
+                // Try to open local server
+                const localWindow = window.open('http://localhost:3025', '_blank');
+                // Check if it opened successfully
+                setTimeout(() => {
+                    if (localWindow && !localWindow.closed) {
+                        console.log('Local server opened successfully');
+                    } else {
+                        alert('Local server bulunamadı. Önce npm start komutunu çalıştırın.');
+                    }
+                }, 1000);
+            } else if (type === 'cloud') {
+                window.open('https://leafy-zuccutto-202e83.netlify.app', '_blank');
+            }
+        }
+
+        function redirectToCRM() {
+            // First try local server
+            const localUrl = 'http://localhost:3025';
+            const testWindow = window.open(localUrl, '_blank');
+            
+            // If local fails, try Netlify
+            setTimeout(() => {
+                if (!testWindow || testWindow.closed) {
+                    window.open('https://leafy-zuccutto-202e83.netlify.app', '_blank');
+                }
+            }, 500);
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', () => {
+            const authData = localStorage.getItem('whatsapp_crm_auth') || sessionStorage.getItem('whatsapp_crm_auth');
+            
+            if (authData) {
+                const auth = JSON.parse(authData);
+                const loginTime = new Date(auth.loginTime);
+                const now = new Date();
+                const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                
+                // Auto-login if less than 24 hours for remember me, or less than 8 hours for session
+                if ((auth.remember && hoursDiff < 24) || (!auth.remember && hoursDiff < 8)) {
+                    document.getElementById('username').value = auth.username;
+                    document.querySelector('.bg-white').innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user-check text-green-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Hoş geldiniz, ${auth.username}!</h3>
+                            <p class="text-gray-600 mb-6">Oturumunuz devam ediyor</p>
+                            <button onclick="redirectToCRM()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-all">
+                                <i class="fas fa-arrow-right mr-2"></i>CRM'e Git
+                            </button>
+                            <button onclick="logout()" class="ml-4 text-gray-600 hover:text-gray-800 transition-all">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Çıkış Yap
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('whatsapp_crm_auth');
+            sessionStorage.removeItem('whatsapp_crm_auth');
+            location.reload();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+            if (e.key === 'F1') {
+                e.preventDefault();
+                fillDemoCredentials();
+            }
+        });
+    </script>
+</body>
+</html>

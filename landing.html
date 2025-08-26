@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp CRM Pro - Gelişmiş WhatsApp İş Yönetimi Platformu</title>
+    <meta name="description" content="AI destekli WhatsApp CRM sistemi ile müşteri ilişkilerinizi yönetin, otomatik mesajlar gönderin ve iş süreçlerinizi optimize edin.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Framework -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'whatsapp': '#25D366',
+                        'whatsapp-dark': '#128C7E',
+                        'primary': '#1E3A8A',
+                        'secondary': '#3B82F6'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        
+        .typing-animation::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-whatsapp rounded-xl flex items-center justify-center">
+                        <i class="fab fa-whatsapp text-white text-xl"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">WhatsApp CRM Pro</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-600 hover:text-primary transition-colors">Özellikler</a>
+                    <a href="#demo" class="text-gray-600 hover:text-primary transition-colors">Demo</a>
+                    <a href="#pricing" class="text-gray-600 hover:text-primary transition-colors">Fiyatlar</a>
+                    <a href="#contact" class="text-gray-600 hover:text-primary transition-colors">İletişim</a>
+                    <button onclick="openApp()" class="bg-whatsapp text-white px-6 py-2 rounded-lg hover:bg-whatsapp-dark transition-colors">
+                        Ücretsiz Başla
+                    </button>
+                </div>
+                
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-20 pb-16 bg-gradient-to-br from-blue-50 to-indigo-100 relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+                <div class="space-y-8 animate-slide-up">
+                    <div class="inline-flex items-center space-x-2 bg-whatsapp/10 text-whatsapp px-4 py-2 rounded-full">
+                        <i class="fas fa-rocket"></i>
+                        <span class="font-medium">2025'in En Gelişmiş WhatsApp CRM'i</span>
+                    </div>
+                    
+                    <h1 class="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                        WhatsApp ile <br>
+                        <span class="text-whatsapp typing-animation">İş Süreçlerinizi</span><br>
+                        Otomatikleştirin
+                    </h1>
+                    
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        AI destekli WhatsApp CRM sistemi ile müşteri ilişkilerinizi yönetin, 
+                        otomatik mesajlar gönderin ve satışlarınızı artırın. 
+                        <strong>6,827+ kişi</strong> ile anında bağlantı kurun.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="openApp()" class="bg-whatsapp text-white px-8 py-4 rounded-xl hover:bg-whatsapp-dark transition-all transform hover:scale-105 font-semibold text-lg shadow-lg">
+                            <i class="fas fa-play mr-2"></i>
+                            Hemen Başla - Ücretsiz
+                        </button>
+                        <button onclick="watchDemo()" class="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl hover:border-primary hover:text-primary transition-all font-semibold text-lg">
+                            <i class="fas fa-video mr-2"></i>
+                            Demo İzle
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Kredi kartı gerekmez
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            5 dakikada kurulum
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            7/24 destek
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative animate-fade-in">
+                    <div class="relative z-10">
+                        <div class="bg-white rounded-2xl shadow-2xl p-6 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <div class="text-sm text-gray-500 ml-4">WhatsApp CRM Dashboard</div>
+                            </div>
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDUwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjlGQUZCIi8+CjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjQ2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzI1RDM2NiIgcng9IjgiLz4KPHR5eGggZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmaWxsPSJ3aGl0ZSIgeD0iNDAiIHk9IjUwIj5XaGF0c0FwcCBDUk0gRGFzaGJvYXJkPC90ZXh0Pgo8cmVjdCB4PSI0MjAiIHk9IjMwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiNGRkZGRkYiIHJ4PSI4Ii8+Cjx0ZXh0IGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzI1RDM2NiIgeD0iNDMwIiB5PSI1NSI+QUk8L3RleHQ+CjxyZWN0IHg9IjIwIiB5PSIxMDAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMTgwIiBmaWxsPSJ3aGl0ZSIgcng9IjgiIHN0cm9rZT0iI0UyRTJFMiIvPgo8dGV4dCBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMzNzM3MzciIHg9IjMwIiB5PSIxMjAiPktpc2lsZXIgKDYsODI3KTwvdGV4dD4KPHN2ZyB4PSIzMCIgeT0iMTQwIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iOCIgZmlsbD0iIzI1RDM2NiIvPgo8dGV4dCBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiMzNzM3MzciIHg9IjI1IiB5PSIxNiI+QWN0aXZlOiA0MjM8L3RleHQ+CjwvY3ZnPgo8L3N2Zz4KPHJlY3QgeD0iMjQwIiB5PSIxMDAiIHdpZHRoPSIyNDAiIGhlaWdodD0iMTgwIiBmaWxsPSJ3aGl0ZSIgcng9IjgiIHN0cm9rZT0iI0UyRTJFMiIvPgo8dGV4dCBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiMzNzM3MzciIHg9IjI1MCIgeT0iMTIwIj5NZXNhamxhciAoUmVhbC10aW1lKTwvdGV4dD4KPHN2ZyB4PSIyNTAiIHk9IjE0MCI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAiIGZpbGw9IiNGM0Y0RjYiIHJ4PSI0Ii8+CjxyZWN0IHdpZHRoPSIxNjAiIGhlaWdodD0iMjAiIGZpbGw9IiMyNUQzNjYiIHJ4PSI0Ii8+Cjx0ZXh0IGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzM3MzczNyIgeT0iMzAiPjgwJSBCYXPFn2FyxLEgT3JhbsSxPC90ZXh0Pgo8L3N2Zz4KPC9zdmc+" alt="Dashboard Preview" class="w-full h-auto rounded-lg" />
+                        </div>
+                        
+                        <!-- Floating elements -->
+                        <div class="absolute -top-4 -right-4 bg-green-500 text-white p-3 rounded-xl shadow-lg animate-float">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="absolute -bottom-4 -left-4 bg-blue-500 text-white p-3 rounded-xl shadow-lg animate-float" style="animation-delay: 1s;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down text-gray-400 text-2xl"></i>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center" data-stat="6827">
+                    <div class="text-4xl font-bold text-whatsapp mb-2 counter">0</div>
+                    <div class="text-gray-600">Aktif Kişi</div>
+                </div>
+                <div class="text-center" data-stat="65">
+                    <div class="text-4xl font-bold text-blue-600 mb-2 counter">0</div>
+                    <div class="text-gray-600">WhatsApp Grubu</div>
+                </div>
+                <div class="text-center" data-stat="1250">
+                    <div class="text-4xl font-bold text-purple-600 mb-2 counter">0</div>
+                    <div class="text-gray-600">Günlük Mesaj</div>
+                </div>
+                <div class="text-center" data-stat="99">
+                    <div class="text-4xl font-bold text-green-600 mb-2 counter">0</div>
+                    <div class="text-gray-600">% Başarı Oranı</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Güçlü Özellikler</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    WhatsApp CRM Pro ile iş süreçlerinizi optimize edin ve müşteri memnuniyetini artırın
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1: Real-time Messaging -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-whatsapp/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-comments text-whatsapp text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Gerçek Zamanlı Mesajlaşma</h3>
+                    <p class="text-gray-600 mb-4">
+                        Supabase entegrasyonu ile tüm mesajlarınız gerçek zamanlı olarak senkronize edilir. 
+                        6,827+ kişi ile anında iletişim kurun.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Otomatik mesaj kaydı</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Real-time senkronizasyon</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Çoklu grup yönetimi</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2: AI Assistant -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-robot text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">AI Asistan Entegrasyonu</h3>
+                    <p class="text-gray-600 mb-4">
+                        Gelişmiş AI asistan ile otomatik cevaplar, randevu yönetimi ve müşteri analizi. 
+                        OpenAI ve Claude API desteği.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Otomatik yanıtlama</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Akıllı randevu sistemi</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Müşteri davranış analizi</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3: Campaign Management -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-bullhorn text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Kampanya Yönetimi</h3>
+                    <p class="text-gray-600 mb-4">
+                        Toplu mesaj gönderimi, hedefli kampanyalar ve detaylı analitik raporlar. 
+                        Müşteri segmentasyonu ile kişiselleştirilmiş mesajlar.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Toplu mesaj gönderimi</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Hedefli kampanyalar</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>A/B test desteği</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4: Advanced Analytics -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-bar text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Gelişmiş Analitik</h3>
+                    <p class="text-gray-600 mb-4">
+                        Detaylı raporlama, müşteri etkileşim analizi ve ROI takibi. 
+                        PostgreSQL tabanlı güvenilir veri yönetimi.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Gerçek zamanlı dashboard</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Müşteri segmentasyonu</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Performans metrikleri</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5: Multi-Device Support -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-mobile-alt text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Çoklu Cihaz Desteği</h3>
+                    <p class="text-gray-600 mb-4">
+                        Local server ve cloud deployment desteği. Her yerden erişim imkanı 
+                        ve otomatik senkronizasyon özelliği.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Responsive tasarım</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Cloud & Local deployment</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Offline çalışma desteği</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6: Security & Privacy -->
+                <div class="feature-card bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+                    <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Güvenlik & Gizlilik</h3>
+                    <p class="text-gray-600 mb-4">
+                        End-to-end şifreleme, RLS (Row Level Security) ve GDPR uyumlu 
+                        veri yönetimi ile güvenliğiniz bizim önceliğimiz.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>End-to-end şifreleme</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>GDPR uyumluluğu</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Rol tabanlı erişim</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo Section -->
+    <section id="demo" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Canlı Demo</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    WhatsApp CRM Pro'yu hemen test edin. Gerçek verilerle çalışan demo ortamımızı deneyin.
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-whatsapp to-whatsapp-dark p-8 rounded-3xl text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-pattern opacity-10"></div>
+                <div class="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-3xl font-bold mb-6">Gerçek Zamanlı Demo Ortamı</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-users w-6"></i>
+                                <span>6,827 Aktif Kişi ile Test Ortamı</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-layer-group w-6"></i>
+                                <span>65 WhatsApp Grubu Yönetimi</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-robot w-6"></i>
+                                <span>AI Asistan Canlı Demo</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-chart-line w-6"></i>
+                                <span>Real-time Analytics Dashboard</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 space-y-4">
+                            <button onclick="openApp()" class="w-full bg-white text-whatsapp px-8 py-4 rounded-xl hover:bg-gray-50 transition-all font-semibold text-lg">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                Demo Ortamını Aç - localhost:3025
+                            </button>
+                            <button onclick="openNetlifyDemo()" class="w-full border-2 border-white text-white px-8 py-4 rounded-xl hover:bg-white hover:text-whatsapp transition-all font-semibold text-lg">
+                                <i class="fas fa-cloud mr-2"></i>
+                                Cloud Demo - Netlify
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white/10 glass-effect p-6 rounded-2xl">
+                            <h4 class="font-semibold mb-3">Sistem Durumu</h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span>WhatsApp Server</span>
+                                    <span class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                                        Aktif
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>Supabase Database</span>
+                                    <span class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                                        Bağlı
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>AI Asistan</span>
+                                    <span class="flex items-center">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                                        Hazır
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/10 glass-effect p-6 rounded-2xl">
+                            <h4 class="font-semibold mb-3">Son Mesaj Aktivitesi</h4>
+                            <div class="text-sm space-y-2 opacity-90">
+                                <div>📱 5 dakika önce: Yeni müşteri mesajı</div>
+                                <div>🤖 3 dakika önce: AI otomatik yanıt</div>
+                                <div>📊 1 dakika önce: Analitik güncellendi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Teknoloji Stack</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Modern ve güvenilir teknolojiler ile geliştirilmiş enterprise düzeyinde çözüm
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fab fa-node-js text-green-600 text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">Node.js</div>
+                    <div class="text-sm text-gray-500">Backend Runtime</div>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-database text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">Supabase</div>
+                    <div class="text-sm text-gray-500">PostgreSQL Database</div>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-whatsapp/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fab fa-whatsapp text-whatsapp text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">WhatsApp Web.js</div>
+                    <div class="text-sm text-gray-500">WhatsApp API</div>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-brain text-purple-600 text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">OpenAI</div>
+                    <div class="text-sm text-gray-500">AI Assistant</div>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-globe text-teal-600 text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">Netlify</div>
+                    <div class="text-sm text-gray-500">Cloud Deployment</div>
+                </div>
+                
+                <div class="text-center group">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bolt text-orange-600 text-2xl"></i>
+                    </div>
+                    <div class="font-semibold text-gray-900">Socket.IO</div>
+                    <div class="text-sm text-gray-500">Real-time Communication</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Fiyatlandırma</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    İhtiyacınıza uygun planı seçin. Tüm planlar 30 gün ücretsiz deneme ile başlar.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Starter Plan -->
+                <div class="bg-white border-2 border-gray-200 rounded-3xl p-8 relative">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Başlangıç</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-4">Ücretsiz</div>
+                        <p class="text-gray-600 mb-6">Küçük işletmeler için ideal</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>100 kişiye kadar</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>5 WhatsApp grubu</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Temel analitik</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Email destek</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="openApp()" class="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-semibold">
+                        Hemen Başla
+                    </button>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="bg-whatsapp text-white rounded-3xl p-8 relative transform scale-105 shadow-2xl">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-sm font-semibold">
+                        En Popüler
+                    </div>
+                    
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold mb-2">Profesyonel</h3>
+                        <div class="text-4xl font-bold mb-4">$29<span class="text-lg">/ay</span></div>
+                        <p class="opacity-90 mb-6">Büyüyen işletmeler için</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check mr-3"></i>
+                            <span>Sınırsız kişi</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check mr-3"></i>
+                            <span>Sınırsız grup</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check mr-3"></i>
+                            <span>AI Asistan</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check mr-3"></i>
+                            <span>Gelişmiş analitik</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check mr-3"></i>
+                            <span>Öncelikli destek</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="openApp()" class="w-full bg-white text-whatsapp py-3 rounded-xl hover:bg-gray-50 transition-colors font-semibold">
+                        30 Gün Ücretsiz Dene
+                    </button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="bg-white border-2 border-gray-200 rounded-3xl p-8 relative">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Kurumsal</h3>
+                        <div class="text-4xl font-bold text-gray-900 mb-4">Özel</div>
+                        <p class="text-gray-600 mb-6">Büyük organizasyonlar için</p>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Özel deployment</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Çoklu ekip desteği</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>API erişimi</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>24/7 telefon desteği</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Özel entegrasyonlar</span>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="contactSales()" class="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-semibold">
+                        Satış ile İletişime Geç
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-whatsapp to-whatsapp-dark text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-pattern opacity-10"></div>
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                WhatsApp CRM Pro ile<br>
+                İş Süreçlerinizi Devrimleştirin
+            </h2>
+            <p class="text-xl mb-8 opacity-90">
+                Bugün başlayın ve 30 gün boyunca tüm özellikleri ücretsiz deneyin.
+                Kredi kartı gerektirmez, anında kurulum.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="openApp()" class="bg-white text-whatsapp px-8 py-4 rounded-xl hover:bg-gray-50 transition-all font-semibold text-lg shadow-lg">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Hemen Başla - Ücretsiz
+                </button>
+                <button onclick="watchDemo()" class="border-2 border-white text-white px-8 py-4 rounded-xl hover:bg-white hover:text-whatsapp transition-all font-semibold text-lg">
+                    <i class="fas fa-video mr-2"></i>
+                    Demo İzle
+                </button>
+            </div>
+            
+            <div class="mt-8 text-sm opacity-75">
+                <i class="fas fa-users mr-2"></i>
+                10,000+ iş kolunda kullanılan güvenilir çözüm
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-whatsapp rounded-xl flex items-center justify-center">
+                            <i class="fab fa-whatsapp text-white text-xl"></i>
+                        </div>
+                        <span class="text-xl font-bold">WhatsApp CRM Pro</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        Gelişmiş WhatsApp CRM sistemi ile iş süreçlerinizi optimize edin.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Ürün</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#features" class="hover:text-white transition-colors">Özellikler</a></li>
+                        <li><a href="#demo" class="hover:text-white transition-colors">Demo</a></li>
+                        <li><a href="#pricing" class="hover:text-white transition-colors">Fiyatlar</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">API Dokümantasyonu</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Destek</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Yardım Merkezi</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Rehberler</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Video Eğitimler</a></li>
+                        <li><a href="#contact" class="hover:text-white transition-colors">İletişim</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Şirket</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Hakkımızda</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Gizlilik Politikası</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Kullanım Şartları</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400">
+                    © 2025 WhatsApp CRM Pro. Tüm hakları saklıdır.
+                </div>
+                <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                    <div class="flex items-center space-x-2 text-gray-400">
+                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span class="text-sm">Sistem Durumu: Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Counter Animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.parentElement.dataset.stat);
+                const increment = target / 100;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target.toLocaleString();
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current).toLocaleString();
+                    }
+                }, 20);
+            });
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.querySelector('.counter')) {
+                        animateCounters();
+                    }
+                    entry.target.classList.add('animate-slide-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => observer.observe(section));
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white/95', 'shadow-lg');
+                navbar.classList.remove('bg-white/90');
+            } else {
+                navbar.classList.add('bg-white/90');
+                navbar.classList.remove('bg-white/95', 'shadow-lg');
+            }
+        });
+
+        // Typing animation
+        const phrases = [
+            'İş Süreçlerinizi',
+            'Müşteri İlişkilerinizi', 
+            'Satış Performansınızı',
+            'Operasyonlarınızı'
+        ];
+        let currentPhrase = 0;
+        let currentChar = 0;
+        let isDeleting = false;
+
+        function typeAnimation() {
+            const element = document.querySelector('.typing-animation');
+            if (!element) return;
+
+            const currentText = phrases[currentPhrase];
+            
+            if (isDeleting) {
+                element.textContent = currentText.substring(0, currentChar - 1);
+                currentChar--;
+            } else {
+                element.textContent = currentText.substring(0, currentChar + 1);
+                currentChar++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            if (!isDeleting && currentChar === currentText.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && currentChar === 0) {
+                isDeleting = false;
+                currentPhrase = (currentPhrase + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(typeAnimation, typeSpeed);
+        }
+
+        // Start typing animation
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(typeAnimation, 1000);
+        });
+
+        // Functions for buttons
+        function openApp() {
+            // Redirect to authentication page
+            window.location.href = 'auth.html';
+        }
+
+        function openNetlifyDemo() {
+            window.open('https://leafy-zuccutto-202e83.netlify.app', '_blank');
+        }
+
+        function watchDemo() {
+            // Open local server for demo
+            window.open('http://localhost:3025', '_blank');
+        }
+
+        function contactSales() {
+            window.location.href = 'mailto:sales@whatsappcrm.pro?subject=Kurumsal Plan Bilgi Talebi';
+        }
+
+        function toggleMobileMenu() {
+            // Mobile menu toggle functionality
+            console.log('Mobile menu toggled');
+        }
+
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add hover effects to feature cards
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-8px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add parallax effect to hero section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * -0.5;
+                const heroElements = document.querySelectorAll('.hero-parallax');
+                heroElements.forEach(element => {
+                    element.style.transform = `translateY(${rate}px)`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

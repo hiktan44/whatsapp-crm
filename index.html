@@ -15,6 +15,65 @@
     <!-- Environment Configuration -->
     <script src="env-config.js"></script>
     <script src="setup-environment.js"></script>
+    <!-- Authentication Check -->
+    <script>
+        // Simple authentication check
+        function checkAuth() {
+            const authData = localStorage.getItem('whatsapp_crm_auth') || sessionStorage.getItem('whatsapp_crm_auth');
+            
+            if (!authData) {
+                // No auth data, redirect to login
+                window.location.href = 'auth.html';
+                return false;
+            }
+            
+            const auth = JSON.parse(authData);
+            const loginTime = new Date(auth.loginTime);
+            const now = new Date();
+            const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+            
+            // Check if session is expired
+            if ((auth.remember && hoursDiff > 24) || (!auth.remember && hoursDiff > 8)) {
+                localStorage.removeItem('whatsapp_crm_auth');
+                sessionStorage.removeItem('whatsapp_crm_auth');
+                window.location.href = 'auth.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Run auth check when page loads
+        if (!checkAuth()) {
+            document.body.style.display = 'none';
+        } else {
+            // Add user info to header
+            document.addEventListener('DOMContentLoaded', () => {
+                const authData = localStorage.getItem('whatsapp_crm_auth') || sessionStorage.getItem('whatsapp_crm_auth');
+                if (authData) {
+                    const auth = JSON.parse(authData);
+                    const userInfo = document.createElement('div');
+                    userInfo.className = 'fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg text-sm';
+                    userInfo.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-circle text-green-600"></i>
+                            <span class="text-gray-700">${auth.username}</span>
+                            <button onclick="logout()" class="text-red-600 hover:text-red-700 ml-2">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(userInfo);
+                }
+            });
+        }
+        
+        function logout() {
+            localStorage.removeItem('whatsapp_crm_auth');
+            sessionStorage.removeItem('whatsapp_crm_auth');
+            window.location.href = 'auth.html';
+        }
+    </script>
     <!-- Supabase Client -->
     <script src="supabase-client.js"></script>
     <!-- AI Assistant Script -->
