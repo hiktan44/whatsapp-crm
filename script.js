@@ -32,6 +32,7 @@ window.WhatsAppCRM = class WhatsAppCRM {
         this.loadSettings();
         this.initializeAutomationSystem();
         this.initializeAnalyticsSystem();
+        this.initializeSettingsSystem();
     }
 
     setupEventListeners() {
@@ -5995,6 +5996,654 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
                     <p class="text-gray-500">Detaylı analitik raporları için veri bekleniyor</p>
                 </div>
             `;
+        }
+    }
+
+    // ================================
+    // SETTINGS SYSTEM
+    // ================================
+
+    initializeSettingsSystem() {
+        console.log('⚙️ Initializing Settings System...');
+        
+        // Setup settings navigation
+        this.setupSettingsNavigation();
+        
+        // Load current settings panel
+        this.loadSettingsPanel('general');
+    }
+
+    setupSettingsNavigation() {
+        const navItems = document.querySelectorAll('.settings-nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const settingsType = e.currentTarget.dataset.settings;
+                this.showSettingsPanel(settingsType);
+                
+                // Update active nav
+                navItems.forEach(nav => nav.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            });
+        });
+    }
+
+    showSettingsPanel(type) {
+        console.log('⚙️ Showing settings panel:', type);
+        this.loadSettingsPanel(type);
+    }
+
+    loadSettingsPanel(type) {
+        const container = document.getElementById('settingsContent');
+        if (!container) return;
+
+        const panels = {
+            'general': this.renderGeneralSettings(),
+            'whatsapp': this.renderWhatsAppSettings(),
+            'notifications': this.renderNotificationSettings(),
+            'templates': this.renderTemplateSettings(),
+            'backup': this.renderBackupSettings(),
+            'account': this.renderAccountSettings()
+        };
+
+        container.innerHTML = panels[type] || panels['general'];
+        
+        // Setup form handlers
+        this.setupSettingsFormHandlers(type);
+    }
+
+    renderGeneralSettings() {
+        const currentSettings = this.getCurrentSettings('general');
+        
+        return `
+            <div class="settings-panel active" id="general-settings">
+                <h3>Genel Ayarlar</h3>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>Şirket Adı</label>
+                        <input type="text" id="companyName" value="${currentSettings.companyName || 'WhatsApp CRM Pro'}" placeholder="Şirket adınızı girin">
+                        <small>CRM'de görünecek şirket ismi</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Saat Dilimi</label>
+                        <select id="timezone">
+                            <option value="Europe/Istanbul" ${currentSettings.timezone === 'Europe/Istanbul' ? 'selected' : ''}>Türkiye (GMT+3)</option>
+                            <option value="Europe/London" ${currentSettings.timezone === 'Europe/London' ? 'selected' : ''}>İngiltere (GMT+0)</option>
+                            <option value="America/New_York" ${currentSettings.timezone === 'America/New_York' ? 'selected' : ''}>New York (GMT-5)</option>
+                            <option value="Asia/Dubai" ${currentSettings.timezone === 'Asia/Dubai' ? 'selected' : ''}>Dubai (GMT+4)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Dil</label>
+                        <select id="language">
+                            <option value="tr" ${currentSettings.language === 'tr' ? 'selected' : ''}>Türkçe</option>
+                            <option value="en" ${currentSettings.language === 'en' ? 'selected' : ''}>English</option>
+                            <option value="de" ${currentSettings.language === 'de' ? 'selected' : ''}>Deutsch</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tarih Formatı</label>
+                        <select id="dateFormat">
+                            <option value="dd/mm/yyyy" ${currentSettings.dateFormat === 'dd/mm/yyyy' ? 'selected' : ''}>DD/MM/YYYY</option>
+                            <option value="mm/dd/yyyy" ${currentSettings.dateFormat === 'mm/dd/yyyy' ? 'selected' : ''}>MM/DD/YYYY</option>
+                            <option value="yyyy-mm-dd" ${currentSettings.dateFormat === 'yyyy-mm-dd' ? 'selected' : ''}>YYYY-MM-DD</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="darkMode" ${currentSettings.darkMode ? 'checked' : ''}>
+                            <span>Dark Mode (Yakında)</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="soundNotifications" ${currentSettings.soundNotifications !== false ? 'checked' : ''}>
+                            <span>Ses bildirimleri</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="btn-primary" onclick="window.crm.saveSettings('general')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.resetSettings('general')">
+                        <i class="fas fa-undo"></i>
+                        Varsayılan
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderWhatsAppSettings() {
+        const isConnected = this.connectionStatus === 'connected';
+        const currentSettings = this.getCurrentSettings('whatsapp');
+        
+        return `
+            <div class="settings-panel active" id="whatsapp-settings">
+                <h3>WhatsApp Bağlantısı</h3>
+                
+                <div class="connection-status">
+                    <div class="status-indicator ${isConnected ? 'connected' : 'disconnected'}">
+                        <i class="fas fa-${isConnected ? 'check-circle' : 'times-circle'}"></i>
+                        <span>${isConnected ? 'Bağlı' : 'Bağlantı Yok'}</span>
+                    </div>
+                    <p>${isConnected ? 'WhatsApp Web ile bağlantı aktif' : 'WhatsApp bağlantısı kurulmamış'}</p>
+                </div>
+                
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>Server URL</label>
+                        <input type="url" id="serverUrl" value="${this.serverUrl}" placeholder="WhatsApp server URL">
+                        <small>Local: http://localhost:3025 | Production: Netlify Functions</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Bağlantı Durumu</label>
+                        <div class="connection-info">
+                            <span class="status-text">${isConnected ? '✅ Aktif' : '❌ Pasif'}</span>
+                            <span class="contact-count">${this.contacts.length} kişi senkronize</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="autoReconnect" ${currentSettings.autoReconnect !== false ? 'checked' : ''}>
+                            <span>Otomatik yeniden bağlanma</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="syncGroups" ${currentSettings.syncGroups !== false ? 'checked' : ''}>
+                            <span>WhatsApp gruplarını senkronize et</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="saveMessages" ${currentSettings.saveMessages !== false ? 'checked' : ''}>
+                            <span>Gönderilen mesajları veritabanına kaydet</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="btn-primary" onclick="window.crm.showQRModal()">
+                        <i class="fas fa-qrcode"></i>
+                        QR Kod
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.saveSettings('whatsapp')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.restartWhatsAppConnection()">
+                        <i class="fas fa-sync"></i>
+                        Yenile
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderNotificationSettings() {
+        const currentSettings = this.getCurrentSettings('notifications');
+        
+        return `
+            <div class="settings-panel active" id="notifications-settings">
+                <h3>Bildirim Ayarları</h3>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="newMessageNotifications" ${currentSettings.newMessageNotifications !== false ? 'checked' : ''}>
+                            <span>Yeni mesaj bildirimleri</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="deliveryNotifications" ${currentSettings.deliveryNotifications !== false ? 'checked' : ''}>
+                            <span>Gönderim tamamlanma bildirimleri</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="systemNotifications" ${currentSettings.systemNotifications ? 'checked' : ''}>
+                            <span>Sistem bakım bildirimleri</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="aiNotifications" ${currentSettings.aiNotifications !== false ? 'checked' : ''}>
+                            <span>AI asistan bildirimleri</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Bildirimleri</label>
+                        <input type="email" id="notificationEmail" value="${currentSettings.notificationEmail || ''}" placeholder="bildirim@sirket.com">
+                        <small>Önemli bildirimlerin gönderileceği email adresi</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Bildirim Sesi</label>
+                        <select id="notificationSound">
+                            <option value="default" ${currentSettings.notificationSound === 'default' ? 'selected' : ''}>Varsayılan</option>
+                            <option value="chime" ${currentSettings.notificationSound === 'chime' ? 'selected' : ''}>Chime</option>
+                            <option value="beep" ${currentSettings.notificationSound === 'beep' ? 'selected' : ''}>Beep</option>
+                            <option value="none" ${currentSettings.notificationSound === 'none' ? 'selected' : ''}>Sessiz</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="btn-primary" onclick="window.crm.saveSettings('notifications')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.testNotification()">
+                        <i class="fas fa-bell"></i>
+                        Test Bildirimi
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderTemplateSettings() {
+        const currentSettings = this.getCurrentSettings('templates');
+        
+        return `
+            <div class="settings-panel active" id="templates-settings">
+                <h3>Şablon Ayarları</h3>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="autoTemplates" ${currentSettings.autoTemplates !== false ? 'checked' : ''}>
+                            <span>Otomatik şablon önerisi</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Varsayılan İmza</label>
+                        <textarea id="defaultSignature" rows="3" placeholder="Mesajlarınızın sonuna eklenecek imza">${currentSettings.defaultSignature || 'En iyi dileklerle,\\nWhatsApp CRM Ekibi'}</textarea>
+                        <small>Tüm gönderilen mesajlarda otomatik eklenecek imza</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Değişken Format</label>
+                        <select id="variableFormat">
+                            <option value="curly" ${currentSettings.variableFormat === 'curly' ? 'selected' : ''}>{değişken}</option>
+                            <option value="square" ${currentSettings.variableFormat === 'square' ? 'selected' : ''}>[değişken]</option>
+                            <option value="percent" ${currentSettings.variableFormat === 'percent' ? 'selected' : ''}>%değişken%</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mesaj Temaları</label>
+                        <select id="defaultTheme">
+                            <option value="default" ${currentSettings.defaultTheme === 'default' ? 'selected' : ''}>Varsayılan</option>
+                            <option value="professional" ${currentSettings.defaultTheme === 'professional' ? 'selected' : ''}>Profesyonel</option>
+                            <option value="friendly" ${currentSettings.defaultTheme === 'friendly' ? 'selected' : ''}>Samimi</option>
+                            <option value="urgent" ${currentSettings.defaultTheme === 'urgent' ? 'selected' : ''}>Acil</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="emojiSupport" ${currentSettings.emojiSupport !== false ? 'checked' : ''}>
+                            <span>Emoji desteği</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="btn-primary" onclick="window.crm.saveSettings('templates')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.resetSettings('templates')">
+                        <i class="fas fa-undo"></i>
+                        Varsayılan
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderBackupSettings() {
+        const currentSettings = this.getCurrentSettings('backup');
+        
+        return `
+            <div class="settings-panel active" id="backup-settings">
+                <h3>Yedekleme & Veri Yönetimi</h3>
+                <div class="settings-form">
+                    <div class="data-info">
+                        <div class="data-stats">
+                            <div class="stat">
+                                <span class="label">Toplam Kişi:</span>
+                                <span class="value">${this.contacts.length}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Toplam Mesaj:</span>
+                                <span class="value">-</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Kampanya:</span>
+                                <span class="value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Supabase Durumu</label>
+                        <div class="supabase-status">
+                            <span class="status-indicator ${window.supabaseClient?.isRealMode ? 'connected' : 'disconnected'}">
+                                <i class="fas fa-${window.supabaseClient?.isRealMode ? 'check-circle' : 'times-circle'}"></i>
+                                ${window.supabaseClient?.isRealMode ? 'Bağlı' : 'Demo Mode'}
+                            </span>
+                            ${window.supabaseClient?.isRealMode ? 
+                                '<small>Veriler gerçek zamanlı kaydediliyor</small>' : 
+                                '<small>Demo modunda - veriler kaydedilmiyor</small>'
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="autoBackup" ${currentSettings.autoBackup ? 'checked' : ''}>
+                            <span>Otomatik yedekleme (Geliştirilme aşamasında)</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Yedekleme Sıklığı</label>
+                        <select id="backupFrequency">
+                            <option value="daily" ${currentSettings.backupFrequency === 'daily' ? 'selected' : ''}>Günlük</option>
+                            <option value="weekly" ${currentSettings.backupFrequency === 'weekly' ? 'selected' : ''}>Haftalık</option>
+                            <option value="monthly" ${currentSettings.backupFrequency === 'monthly' ? 'selected' : ''}>Aylık</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="backup-actions">
+                    <button class="btn-primary" onclick="window.crm.exportData()">
+                        <i class="fas fa-download"></i>
+                        Verileri Dışa Aktar
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.importData()">
+                        <i class="fas fa-upload"></i>
+                        Veri İçe Aktar
+                    </button>
+                    <button class="btn-secondary" onclick="window.crm.saveSettings('backup')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderAccountSettings() {
+        const authData = JSON.parse(localStorage.getItem('whatsapp_crm_auth') || sessionStorage.getItem('whatsapp_crm_auth') || '{}');
+        const currentSettings = this.getCurrentSettings('account');
+        
+        return `
+            <div class="settings-panel active" id="account-settings">
+                <h3>Hesap Ayarları</h3>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="username" value="${authData.username || 'admin'}" readonly>
+                        <small>Giriş için kullanılan kullanıcı adı</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ad Soyad</label>
+                        <input type="text" id="fullName" value="${currentSettings.fullName || 'Admin User'}" placeholder="Adınız Soyadınız">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>E-posta</label>
+                        <input type="email" id="email" value="${currentSettings.email || ''}" placeholder="admin@sirket.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select id="userRole" disabled>
+                            <option value="admin" selected>Yönetici</option>
+                            <option value="user">Kullanıcı</option>
+                            <option value="viewer">Görüntüleyici</option>
+                        </select>
+                        <small>Rol değişikliği için sistem yöneticisi ile iletişime geçin</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Oturum Bilgileri</label>
+                        <div class="session-info">
+                            <p><strong>Giriş Zamanı:</strong> ${authData.loginTime ? new Date(authData.loginTime).toLocaleString('tr-TR') : '-'}</p>
+                            <p><strong>Oturum Türü:</strong> ${authData.remember ? 'Kalıcı (24 saat)' : 'Geçici (8 saat)'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="emailUpdates" ${currentSettings.emailUpdates ? 'checked' : ''}>
+                            <span>Email güncellemeleri al</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button class="btn-primary" onclick="window.crm.saveSettings('account')">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <button class="btn-danger" onclick="window.crm.logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Çıkış Yap
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    getCurrentSettings(type) {
+        return JSON.parse(localStorage.getItem(`settings_${type}`) || '{}');
+    }
+
+    setupSettingsFormHandlers(type) {
+        // Form change handlers will be added here
+        console.log('⚙️ Setting up form handlers for:', type);
+    }
+
+    async saveSettings(type) {
+        console.log('💾 Saving settings:', type);
+        
+        const formData = this.collectFormData(type);
+        
+        // Save to localStorage
+        localStorage.setItem(`settings_${type}`, JSON.stringify(formData));
+        
+        // Apply settings immediately
+        this.applySettings(type, formData);
+        
+        // Show success notification
+        this.showSuccessMessage(`${this.getSettingsTypeName(type)} ayarları kaydedildi!`);
+        
+        // Refresh current panel to show saved values
+        setTimeout(() => {
+            this.loadSettingsPanel(type);
+        }, 1000);
+    }
+
+    collectFormData(type) {
+        const formData = {};
+        const container = document.getElementById('settingsContent');
+        
+        // Collect all input values based on type
+        const inputs = container.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                formData[input.id] = input.checked;
+            } else {
+                formData[input.id] = input.value;
+            }
+        });
+        
+        return formData;
+    }
+
+    applySettings(type, settings) {
+        // Apply settings immediately based on type
+        switch (type) {
+            case 'general':
+                if (settings.companyName) {
+                    document.title = settings.companyName + ' - CRM';
+                }
+                break;
+            case 'whatsapp':
+                if (settings.serverUrl && settings.serverUrl !== this.serverUrl) {
+                    this.serverUrl = settings.serverUrl;
+                }
+                break;
+            case 'notifications':
+                // Apply notification settings
+                break;
+        }
+    }
+
+    resetSettings(type) {
+        if (confirm(`${this.getSettingsTypeName(type)} ayarlarını varsayılan değerlere döndürmek istediğinizden emin misiniz?`)) {
+            localStorage.removeItem(`settings_${type}`);
+            this.loadSettingsPanel(type);
+            this.showSuccessMessage(`${this.getSettingsTypeName(type)} ayarları varsayılan değerlere döndürüldü!`);
+        }
+    }
+
+    getSettingsTypeName(type) {
+        const typeNames = {
+            'general': 'Genel',
+            'whatsapp': 'WhatsApp',
+            'notifications': 'Bildirim',
+            'templates': 'Şablon',
+            'backup': 'Yedekleme',
+            'account': 'Hesap'
+        };
+        return typeNames[type] || type;
+    }
+
+    testNotification() {
+        this.showSuccessMessage('Test bildirimi başarıyla gönderildi!');
+        
+        // Browser notification if permitted
+        if (Notification.permission === 'granted') {
+            new Notification('WhatsApp CRM', {
+                body: 'Test bildirimi - bildirimler çalışıyor!',
+                icon: '/favicon.ico'
+            });
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    new Notification('WhatsApp CRM', {
+                        body: 'Test bildirimi - bildirimler aktif edildi!',
+                        icon: '/favicon.ico'
+                    });
+                }
+            });
+        }
+    }
+
+    async exportData() {
+        try {
+            const exportData = {
+                contacts: this.contacts,
+                settings: {
+                    general: this.getCurrentSettings('general'),
+                    whatsapp: this.getCurrentSettings('whatsapp'),
+                    notifications: this.getCurrentSettings('notifications'),
+                    templates: this.getCurrentSettings('templates'),
+                    backup: this.getCurrentSettings('backup'),
+                    account: this.getCurrentSettings('account')
+                },
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `whatsapp-crm-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.showSuccessMessage('Veriler başarıyla dışa aktarıldı!');
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showErrorMessage('Veri dışa aktarma sırasında hata oluştu!');
+        }
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        
+                        if (confirm('Mevcut veriler üzerine yazılacak. Devam etmek istediğinizden emin misiniz?')) {
+                            // Import settings
+                            if (importData.settings) {
+                                Object.keys(importData.settings).forEach(type => {
+                                    localStorage.setItem(`settings_${type}`, JSON.stringify(importData.settings[type]));
+                                });
+                            }
+                            
+                            this.showSuccessMessage('Veriler başarıyla içe aktarıldı!');
+                            
+                            // Refresh current panel
+                            const activeNav = document.querySelector('.settings-nav-item.active');
+                            if (activeNav) {
+                                this.loadSettingsPanel(activeNav.dataset.settings);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        this.showErrorMessage('Geçersiz dosya formatı!');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+        input.click();
+    }
+
+    restartWhatsAppConnection() {
+        if (confirm('WhatsApp bağlantısı yeniden başlatılacak. Devam etmek istediğinizden emin misiniz?')) {
+            this.showInfoMessage('WhatsApp bağlantısı yeniden başlatılıyor...');
+            
+            // Restart connection logic
+            this.connectionStatus = 'disconnected';
+            setTimeout(() => {
+                this.initializeWhatsAppConnection();
+                this.loadSettingsPanel('whatsapp');
+            }, 2000);
         }
     }
 

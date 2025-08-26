@@ -4422,3 +4422,137 @@ body {
 .mt-4 {
     margin-top: 1rem !important;
 }
+
+/* ================================
+   SETTINGS SYSTEM STYLES
+   ================================ */
+
+.connection-status {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.status-indicator.connected {
+    color: #28a745;
+}
+
+.status-indicator.disconnected {
+    color: #dc3545;
+}
+
+.connection-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+.status-text {
+    font-weight: 500;
+}
+
+.contact-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.data-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.data-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.data-stats .stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.data-stats .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.data-stats .value {
+    font-weight: 600;
+    color: var(--whatsapp-green);
+}
+
+.supabase-status {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.session-info {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.session-info p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.settings-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Responsive Settings */
+@media (max-width: 768px) {
+    .connection-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .data-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .backup-actions {
+        flex-direction: column;
+    }
+    
+    .settings-actions {
+        flex-direction: column;
+    }
+}
