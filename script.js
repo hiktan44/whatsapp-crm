@@ -795,10 +795,10 @@ window.WhatsAppCRM = class WhatsAppCRM {
         // Store WhatsApp groups
         this.whatsappGroups = groups.map(group => ({
             id: group.id._serialized || group.id,
-            name: group.name,
+            name: group.name || 'Adsız Grup',
             description: group.description || 'WhatsApp grubu',
             members: group.participants ? group.participants.length : 0,
-            avatar: group.name.substring(0, 2).toUpperCase(),
+            avatar: (group.name || 'AG').substring(0, 2).toUpperCase(),
             lastMessage: 'Az önce',
             canSendMessages: true, // Gerçek durumda admin kontrolü yapılacak
             whatsappData: {
