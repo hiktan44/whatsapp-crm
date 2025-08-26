@@ -1412,6 +1412,52 @@ Kullanabileceğiniz değişkenler:
                 <button class="modal-close" onclick="crm.closeAISettingsModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <!-- AI Açıklama Paneli -->
+                <div class="ai-info-panel">
+                    <div class="info-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h4>AI Asistan Hakkında</h4>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-item">
+                            <h5><i class="fas fa-question-circle"></i> AI Asistan Nedir?</h5>
+                            <p>WhatsApp CRM AI Asistanı, müşterilerinizden gelen mesajlara otomatik olarak yanıt veren akıllı bir sistemdir. 7/24 müşteri desteği sağlar ve iş yükünüzü azaltır.</p>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h5><i class="fas fa-cogs"></i> Nasıl Çalışır?</h5>
+                            <ul>
+                                <li><strong>Mesaj Toplama:</strong> Gelen mesajları 25 saniye toplar</li>
+                                <li><strong>Akıllı Analiz:</strong> Mesaj içeriğini analiz eder</li>
+                                <li><strong>Otomatik Yanıt:</strong> Uygun yanıtı otomatik gönderir</li>
+                                <li><strong>Randevu Yönetimi:</strong> Randevu talepleri otomatik planlanır</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-item">
+                            <h5><i class="fas fa-star"></i> Faydaları</h5>
+                            <ul>
+                                <li>7/24 müşteri desteği</li>
+                                <li>%70 daha hızlı yanıt süresi</li>
+                                <li>Otomatik randevu planlama</li>
+                                <li>Müşteri memnuniyeti artışı</li>
+                                <li>İş yükü azaltma</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-item warning">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Yapılandırma Gerekli</h5>
+                            <p><strong>Önemli:</strong> AI özelliği şu anda yapılandırma gerektirir:</p>
+                            <ul>
+                                <li>LLM Modeli seçimi yapılmamış (GPT-4, Claude, vb.)</li>
+                                <li>API Key girilmemiş</li>
+                                <li>Bilgi bankası henüz oluşturulmamış</li>
+                            </ul>
+                            <p class="setup-note">Bu ayarlar yapılmadan AI asistan demo modunda çalışır.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="settings-group">
                     <label class="settings-label">
                         <i class="fas fa-power-off"></i> AI Asistan Durumu
@@ -1421,10 +1467,47 @@ Kullanabileceğiniz değişkenler:
                             <input type="checkbox" id="aiAssistantToggle">
                             <span class="toggle-slider"></span>
                         </label>
-                        <span class="toggle-text">Otomatik yanıtları etkinleştir</span>
+                        <span class="toggle-text">Otomatik yanıtları etkinleştir (Demo Mode)</span>
                     </div>
                 </div>
                 
+                <!-- AI Model ve API Konfigürasyonu -->
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-brain"></i> AI Model Seçimi
+                    </label>
+                    <select id="aiModel" class="form-select">
+                        <option value="" selected>Seçiniz (Gerekli)</option>
+                        <option value="gpt-4">OpenAI GPT-4</option>
+                        <option value="gpt-3.5-turbo">OpenAI GPT-3.5 Turbo</option>
+                        <option value="claude-3">Anthropic Claude 3</option>
+                        <option value="gemini-pro">Google Gemini Pro</option>
+                        <option value="demo">Demo Mode (Sadece Test)</option>
+                    </select>
+                    <small class="help-text">AI asistanın kullanacağı dil modeli</small>
+                </div>
+
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-key"></i> API Key
+                    </label>
+                    <div class="api-key-input">
+                        <input type="password" id="apiKey" placeholder="API Key'inizi girin..." class="form-input">
+                        <button type="button" class="toggle-password" onclick="toggleApiKeyVisibility()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small class="help-text">Seçilen AI model için API anahtarı gereklidir</small>
+                    <div class="api-links">
+                        <a href="https://platform.openai.com/api-keys" target="_blank" class="api-link">
+                            <i class="fas fa-external-link-alt"></i> OpenAI API Key
+                        </a>
+                        <a href="https://console.anthropic.com/" target="_blank" class="api-link">
+                            <i class="fas fa-external-link-alt"></i> Claude API Key
+                        </a>
+                    </div>
+                </div>
+
                 <div class="settings-group">
                     <label class="settings-label">
                         <i class="fas fa-clock"></i> Mesaj Bekleme Süresi

@@ -5083,6 +5083,16 @@ Değişkenler:
     }
 
     loadAISettings() {
+        // Load current AI settings from localStorage
+        const settings = JSON.parse(localStorage.getItem('aiSettings') || '{}');
+        
+        // Load AI configuration
+        const aiModel = document.getElementById('aiModel');
+        const apiKey = document.getElementById('apiKey');
+        
+        if (aiModel) aiModel.value = settings.aiModel || '';
+        if (apiKey) apiKey.value = settings.apiKey || '';
+        
         // Load current AI settings into the modal
         if (window.aiAssistant) {
             const toggle = document.getElementById('aiAssistantToggle');
@@ -5097,6 +5107,75 @@ Değişkenler:
             if (workingEnd) workingEnd.value = window.aiAssistant.settings.workingHours.end.toString();
             if (appointmentDuration) appointmentDuration.value = window.aiAssistant.settings.appointmentDuration.toString();
         }
+        
+        // Update toggle text based on configuration
+        this.updateToggleText();
+    }
+    
+    updateToggleText() {
+        const aiModel = document.getElementById('aiModel')?.value;
+        const apiKey = document.getElementById('apiKey')?.value;
+        const toggleText = document.querySelector('.toggle-text');
+        
+        if (toggleText) {
+            if (!aiModel || !apiKey || aiModel === 'demo') {
+                toggleText.textContent = 'Otomatik yanıtları etkinleştir (Demo Mode)';
+            } else {
+                toggleText.textContent = `Otomatik yanıtları etkinleştir (${this.getModelDisplayName(aiModel)})`;
+            }
+        }
+    }
+    
+    getModelDisplayName(model) {
+        const displayNames = {
+            'gpt-4': 'GPT-4',
+            'gpt-3.5-turbo': 'GPT-3.5',
+            'claude-3': 'Claude 3',
+            'gemini-pro': 'Gemini Pro',
+            'demo': 'Demo Mode'
+        };
+        return displayNames[model] || 'Demo Mode';
+    }
+    
+    saveAISettings() {
+        // Get form values
+        const aiModel = document.getElementById('aiModel')?.value;
+        const apiKey = document.getElementById('apiKey')?.value;
+        const bufferDelay = document.getElementById('bufferDelay')?.value;
+        const workingStart = document.getElementById('workingStart')?.value;
+        const workingEnd = document.getElementById('workingEnd')?.value;
+        const appointmentDuration = document.getElementById('appointmentDuration')?.value;
+        
+        // Save to localStorage
+        const settings = {
+            aiModel: aiModel || '',
+            apiKey: apiKey || '',
+            bufferDelay: bufferDelay || '25',
+            workingStart: workingStart || '9',
+            workingEnd: workingEnd || '18',
+            appointmentDuration: appointmentDuration || '30'
+        };
+        
+        localStorage.setItem('aiSettings', JSON.stringify(settings));
+        
+        // Update AI assistant settings if available
+        if (window.aiAssistant) {
+            window.aiAssistant.settings.bufferDelay = parseInt(bufferDelay) * 1000;
+            window.aiAssistant.settings.workingHours = {
+                start: parseInt(workingStart),
+                end: parseInt(workingEnd)
+            };
+            window.aiAssistant.settings.appointmentDuration = parseInt(appointmentDuration);
+        }
+        
+        // Update toggle text
+        this.updateToggleText();
+        
+        // Show success notification
+        this.showNotification('AI ayarları kaydedildi', 'success');
+        
+        // Close modal
+        this.closeAISettingsModal();
     }
 
     updateAIStatus() {
@@ -6649,6 +6728,55 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
 
 }; // End of WhatsAppCRM class definition
 } // End of class definition guard
+
+// Global AI helper functions
+function toggleApiKeyVisibility() {
+    const apiKeyInput = document.getElementById('apiKey');
+    const toggleBtn = document.querySelector('.toggle-password');
+    
+    if (apiKeyInput && toggleBtn) {
+        const isPassword = apiKeyInput.type === 'password';
+        apiKeyInput.type = isPassword ? 'text' : 'password';
+        
+        const icon = toggleBtn.querySelector('i');
+        if (icon) {
+            icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        }
+    }
+}
+
+// Event listeners for AI configuration changes
+document.addEventListener('DOMContentLoaded', function() {
+    // AI model change handler
+    const aiModelSelect = document.getElementById('aiModel');
+    const apiKeyInput = document.getElementById('apiKey');
+    
+    if (aiModelSelect) {
+        aiModelSelect.addEventListener('change', function() {
+            if (window.crm) {
+                window.crm.updateToggleText();
+            }
+        });
+    }
+    
+    if (apiKeyInput) {
+        apiKeyInput.addEventListener('input', function() {
+            if (window.crm) {
+                window.crm.updateToggleText();
+            }
+        });
+    }
+    
+    // Save AI settings button
+    const saveAISettingsBtn = document.getElementById('saveAISettings');
+    if (saveAISettingsBtn) {
+        saveAISettingsBtn.addEventListener('click', function() {
+            if (window.crm) {
+                window.crm.saveAISettings();
+            }
+        });
+    }
+});
 
 // Initialize CRM when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

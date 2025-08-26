@@ -392,8 +392,8 @@ Sen: "Merhaba! Size nasıl yardımcı olabiliriz? Detaylı bilgi için kısa bir
         panel.innerHTML = `
             <div class="panel-header">
                 <h3><i class="fas fa-robot"></i> AI Asistan Konuşmaları</h3>
-                <button class="btn-secondary" onclick="aiAssistant.togglePanel()">
-                    <i class="fas fa-minimize"></i>
+                <button class="close-btn" onclick="window.aiAssistant.hidePanel()" title="Kapat">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="conversations-list"></div>
@@ -401,6 +401,39 @@ Sen: "Merhaba! Size nasıl yardımcı olabiliriz? Detaylı bilgi için kısa bir
         
         document.body.appendChild(panel);
         return panel;
+    }
+    
+    togglePanel() {
+        const panel = document.getElementById('aiConversations');
+        if (panel) {
+            panel.classList.toggle('active');
+        } else {
+            this.createConversationPanel();
+            const newPanel = document.getElementById('aiConversations');
+            if (newPanel) {
+                newPanel.classList.add('active');
+            }
+        }
+    }
+    
+    hidePanel() {
+        const panel = document.getElementById('aiConversations');
+        if (panel) {
+            panel.classList.remove('active');
+        }
+    }
+    
+    showPanel() {
+        const panel = document.getElementById('aiConversations');
+        if (panel) {
+            panel.classList.add('active');
+        } else {
+            this.createConversationPanel();
+            const newPanel = document.getElementById('aiConversations');
+            if (newPanel) {
+                newPanel.classList.add('active');
+            }
+        }
     }
 
     createConversationThread(phoneNumber) {
@@ -576,6 +609,21 @@ const aiStyles = `
     border-radius: 12px 12px 0 0;
     background: var(--whatsapp-green);
     color: white;
+}
+
+.panel-header .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.panel-header .close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .conversations-list {
