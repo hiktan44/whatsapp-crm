@@ -136,13 +136,21 @@
             const remember = document.getElementById('remember').checked;
             const loginBtn = document.getElementById('loginBtn');
             
+            console.log('🔐 Login attempt:', { username, password, remember });
+            console.log('📋 Available credentials:', credentials);
+            
             // Show loading state
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Giriş yapılıyor...';
             loginBtn.disabled = true;
             
             // Simulate authentication delay
             setTimeout(() => {
+                console.log('🔍 Checking credentials for:', username);
+                console.log('🔍 Expected password:', credentials[username]);
+                console.log('🔍 Provided password:', password);
+                
                 if (credentials[username] && credentials[username] === password) {
+                    console.log('✅ Authentication successful!');
                     // Success
                     loginBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Başarılı!';
                     loginBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
@@ -169,6 +177,7 @@
                     }, 1000);
                     
                 } else {
+                    console.log('❌ Authentication failed!');
                     // Error
                     loginBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Hatalı bilgiler!';
                     loginBtn.classList.remove('bg-green-500');
@@ -231,16 +240,28 @@
         }
 
         function redirectToCRM() {
-            // First try local server
-            const localUrl = 'http://localhost:3025';
-            const testWindow = window.open(localUrl, '_blank');
+            console.log('🚀 Redirecting to CRM...');
             
-            // If local fails, try Netlify
-            setTimeout(() => {
-                if (!testWindow || testWindow.closed) {
-                    window.open('https://leafy-zuccutto-202e83.netlify.app', '_blank');
-                }
-            }, 500);
+            // Try to open local server first
+            try {
+                const localWindow = window.open('http://localhost:3025', '_blank');
+                console.log('📍 Local server window opened:', localWindow);
+                
+                // Check if local server is accessible
+                setTimeout(() => {
+                    if (!localWindow || localWindow.closed) {
+                        console.log('❌ Local server not accessible, trying Netlify...');
+                        window.open('https://leafy-zuccutto-202e83.netlify.app/index.html', '_blank');
+                    } else {
+                        console.log('✅ Local server accessible');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                console.log('❌ Error opening local server:', error);
+                console.log('🌐 Opening Netlify directly...');
+                window.open('https://leafy-zuccutto-202e83.netlify.app/index.html', '_blank');
+            }
         }
 
         // Check if user is already logged in
