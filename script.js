@@ -31,6 +31,7 @@ window.WhatsAppCRM = class WhatsAppCRM {
         this.renderDashboard();
         this.loadSettings();
         this.initializeAutomationSystem();
+        this.initializeAnalyticsSystem();
     }
 
     setupEventListeners() {
@@ -5624,6 +5625,377 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+
+    // ================================
+    // ANALYTICS SYSTEM
+    // ================================
+
+    initializeAnalyticsSystem() {
+        console.log('📊 Initializing Analytics System...');
+        
+        // Setup date range picker
+        this.setupAnalyticsEventListeners();
+        
+        // Load initial analytics
+        this.loadAnalytics();
+    }
+
+    setupAnalyticsEventListeners() {
+        const dateRangePicker = document.getElementById('analyticsDateRange');
+        if (dateRangePicker) {
+            dateRangePicker.addEventListener('change', (e) => {
+                this.loadAnalytics(parseInt(e.target.value));
+            });
+        }
+    }
+
+    async loadAnalytics(days = 30) {
+        try {
+            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+                // Load real analytics from Supabase
+                const [
+                    overviewData,
+                    campaignStats,
+                    messageStats,
+                    contactStats
+                ] = await Promise.all([
+                    this.getAnalyticsOverview(days),
+                    this.getCampaignAnalytics(days),
+                    this.getMessageAnalytics(days),
+                    this.getContactAnalytics(days)
+                ]);
+
+                this.renderAnalyticsOverview(overviewData);
+                this.renderAnalyticsTables(campaignStats, messageStats, contactStats);
+                
+                console.log('✅ Analytics loaded from Supabase');
+            } else {
+                // Show empty state
+                this.renderEmptyAnalytics();
+                console.log('📝 Analytics: Demo mode disabled');
+            }
+        } catch (error) {
+            console.error('❌ Failed to load analytics:', error);
+            this.renderEmptyAnalytics();
+        }
+    }
+
+    async getAnalyticsOverview(days) {
+        try {
+            // Get message count from messages table
+            const { data: messageData, error: messageError } = await window.supabaseClient.supabase
+                .from('messages')
+                .select('id, created_at, direction')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
+
+            if (messageError) throw messageError;
+
+            // Get contact count
+            const { data: contactData, error: contactError } = await window.supabaseClient.supabase
+                .from('contacts')
+                .select('id, created_at')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
+
+            if (contactError) throw contactError;
+
+            // Get campaign data
+            const { data: campaignData, error: campaignError } = await window.supabaseClient.supabase
+                .from('campaigns')
+                .select('id, sent_count, status, created_at')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
+
+            if (campaignError) throw campaignError;
+
+            // Calculate metrics
+            const totalMessages = messageData?.length || 0;
+            const sentMessages = messageData?.filter(m => m.direction === 'outbound').length || 0;
+            const receivedMessages = messageData?.filter(m => m.direction === 'inbound').length || 0;
+            const newContacts = contactData?.length || 0;
+            const activeCampaigns = campaignData?.filter(c => c.status === 'active').length || 0;
+            const totalCampaignsSent = campaignData?.reduce((sum, c) => sum + (c.sent_count || 0), 0) || 0;
+
+            return {
+                totalMessages,
+                sentMessages,
+                receivedMessages,
+                newContacts,
+                activeCampaigns,
+                totalCampaignsSent,
+                deliveryRate: sentMessages > 0 ? ((sentMessages / (sentMessages + 1)) * 100).toFixed(1) : 0,
+                responseRate: sentMessages > 0 ? ((receivedMessages / sentMessages) * 100).toFixed(1) : 0
+            };
+        } catch (error) {
+            console.error('Get analytics overview error:', error);
+            return this.getEmptyOverviewData();
+        }
+    }
+
+    async getCampaignAnalytics(days) {
+        try {
+            const { data, error } = await window.supabaseClient.supabase
+                .from('campaigns')
+                .select('name, type, sent_count, status, created_at')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
+                .order('sent_count', { ascending: false })
+                .limit(10);
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Get campaign analytics error:', error);
+            return [];
+        }
+    }
+
+    async getMessageAnalytics(days) {
+        try {
+            const { data, error } = await window.supabaseClient.supabase
+                .from('messages')
+                .select('created_at, direction, type')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Get message analytics error:', error);
+            return [];
+        }
+    }
+
+    async getContactAnalytics(days) {
+        try {
+            const { data, error } = await window.supabaseClient.supabase
+                .from('contacts')
+                .select('created_at, last_message_at')
+                .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Get contact analytics error:', error);
+            return [];
+        }
+    }
+
+    getEmptyOverviewData() {
+        return {
+            totalMessages: 0,
+            sentMessages: 0,
+            receivedMessages: 0,
+            newContacts: 0,
+            activeCampaigns: 0,
+            totalCampaignsSent: 0,
+            deliveryRate: 0,
+            responseRate: 0
+        };
+    }
+
+    renderAnalyticsOverview(data) {
+        const container = document.getElementById('analyticsOverview');
+        if (!container) return;
+
+        const formatNumber = (num) => {
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        };
+
+        container.innerHTML = `
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3>Toplam Mesaj</h3>
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="metric-value">${formatNumber(data.totalMessages)}</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    Gönderilen: ${formatNumber(data.sentMessages)}
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3>Teslim Oranı</h3>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="metric-value">${data.deliveryRate}%</div>
+                <div class="metric-change ${data.deliveryRate > 90 ? 'positive' : 'negative'}">
+                    <i class="fas fa-${data.deliveryRate > 90 ? 'arrow-up' : 'arrow-down'}"></i>
+                    ${data.deliveryRate > 90 ? 'Yüksek' : 'Düşük'} performans
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3>Yanıt Oranı</h3>
+                    <i class="fas fa-reply"></i>
+                </div>
+                <div class="metric-value">${data.responseRate}%</div>
+                <div class="metric-change ${data.responseRate > 30 ? 'positive' : 'negative'}">
+                    <i class="fas fa-${data.responseRate > 30 ? 'arrow-up' : 'arrow-down'}"></i>
+                    Yanıt: ${formatNumber(data.receivedMessages)}
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <h3>Yeni Kişiler</h3>
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="metric-value">${formatNumber(data.newContacts)}</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-users"></i>
+                    Aktif kampanya: ${data.activeCampaigns}
+                </div>
+            </div>
+        `;
+    }
+
+    renderAnalyticsTables(campaigns, messages, contacts) {
+        const container = document.getElementById('analyticsTables');
+        if (!container) return;
+
+        // Process campaign data for top performers table
+        const topCampaigns = campaigns.slice(0, 5);
+
+        // Process message data for time analysis
+        const timeAnalysis = this.analyzeMessagesByTime(messages);
+
+        container.innerHTML = `
+            <div class="table-container">
+                <h3>En İyi Performans Gösteren Kampanyalar</h3>
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Kampanya Adı</th>
+                            <th>Tür</th>
+                            <th>Gönderim</th>
+                            <th>Durum</th>
+                            <th>Tarih</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${topCampaigns.length > 0 ? topCampaigns.map(campaign => `
+                            <tr>
+                                <td>${campaign.name}</td>
+                                <td><span class="campaign-type ${campaign.type}">${this.getCampaignTypeName(campaign.type)}</span></td>
+                                <td>${campaign.sent_count || 0}</td>
+                                <td><span class="status-badge ${campaign.status}">${campaign.status === 'active' ? 'Aktif' : 'Pasif'}</span></td>
+                                <td>${new Date(campaign.created_at).toLocaleDateString('tr-TR')}</td>
+                            </tr>
+                        `).join('') : `
+                            <tr>
+                                <td colspan="5" class="empty-cell">
+                                    <i class="fas fa-chart-line"></i>
+                                    Henüz kampanya verisi bulunmuyor
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3>Gönderim Zamanı Analizi</h3>
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Saat Aralığı</th>
+                            <th>Gönderim</th>
+                            <th>Alınan</th>
+                            <th>Oran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${timeAnalysis.length > 0 ? timeAnalysis.map(slot => `
+                            <tr>
+                                <td>${slot.timeSlot}</td>
+                                <td>${slot.sent}</td>
+                                <td>${slot.received}</td>
+                                <td>${slot.rate}%</td>
+                            </tr>
+                        `).join('') : `
+                            <tr>
+                                <td colspan="4" class="empty-cell">
+                                    <i class="fas fa-clock"></i>
+                                    Zaman analizi için yeterli veri yok
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    analyzeMessagesByTime(messages) {
+        const timeSlots = [
+            { range: '00:00-06:00', start: 0, end: 6, sent: 0, received: 0 },
+            { range: '06:00-12:00', start: 6, end: 12, sent: 0, received: 0 },
+            { range: '12:00-18:00', start: 12, end: 18, sent: 0, received: 0 },
+            { range: '18:00-24:00', start: 18, end: 24, sent: 0, received: 0 }
+        ];
+
+        messages.forEach(message => {
+            const hour = new Date(message.created_at).getHours();
+            const slot = timeSlots.find(s => hour >= s.start && hour < s.end);
+            if (slot) {
+                if (message.direction === 'outbound') {
+                    slot.sent++;
+                } else {
+                    slot.received++;
+                }
+            }
+        });
+
+        return timeSlots.map(slot => ({
+            timeSlot: slot.range,
+            sent: slot.sent,
+            received: slot.received,
+            rate: slot.sent > 0 ? ((slot.received / slot.sent) * 100).toFixed(1) : 0
+        }));
+    }
+
+    getCampaignTypeName(type) {
+        const typeNames = {
+            'broadcast': 'Toplu Gönderim',
+            'automation': 'Otomasyon',
+            'template': 'Şablon',
+            'campaign': 'Kampanya'
+        };
+        return typeNames[type] || type;
+    }
+
+    renderEmptyAnalytics() {
+        const overviewContainer = document.getElementById('analyticsOverview');
+        const tablesContainer = document.getElementById('analyticsTables');
+
+        if (overviewContainer) {
+            overviewContainer.innerHTML = `
+                <div class="empty-analytics">
+                    <i class="fas fa-chart-line text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-gray-600 mb-2">Analitik Verisi Bulunamadı</h3>
+                    <p class="text-gray-500">Veriler gerçek Supabase veritabanından yüklenir</p>
+                    <button class="btn-primary mt-4" onclick="window.crm.loadAnalytics()">
+                        <i class="fas fa-refresh"></i>
+                        Yenile
+                    </button>
+                </div>
+            `;
+        }
+
+        if (tablesContainer) {
+            tablesContainer.innerHTML = `
+                <div class="empty-analytics">
+                    <i class="fas fa-table text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">Detaylı analitik raporları için veri bekleniyor</p>
+                </div>
+            `;
+        }
     }
 
 }; // End of WhatsAppCRM class definition

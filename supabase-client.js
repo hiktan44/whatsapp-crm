@@ -325,20 +325,9 @@ class SupabaseClient {
 
     async getDailyStats(days = 7) {
         if (!this.isRealMode) {
-            // Return demo analytics
-            const demoData = [];
-            for (let i = 0; i < days; i++) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                demoData.push({
-                    date: date.toISOString().split('T')[0],
-                    total_contacts: 100 + Math.floor(Math.random() * 50),
-                    messages_sent: 50 + Math.floor(Math.random() * 100),
-                    messages_received: 30 + Math.floor(Math.random() * 80),
-                    ai_responses: 10 + Math.floor(Math.random() * 30)
-                });
-            }
-            return { data: demoData, error: null };
+            // No demo data - return empty
+            console.log('📝 Demo mode: No analytics data');
+            return { data: [], error: null };
         }
 
         try {
