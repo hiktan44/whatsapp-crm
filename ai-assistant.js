@@ -758,7 +758,9 @@ document.head.insertAdjacentHTML('beforeend', aiStyles);
 }
 
 // Initialize only if not already done
-if (typeof window !== 'undefined' && !window.aiAssistant) {
+if (typeof window !== 'undefined' && !window.aiAssistant && typeof AIAssistant !== 'undefined') {
     window.aiAssistant = new AIAssistant();
     console.log('✅ AI Assistant initialized');
+} else if (typeof window !== 'undefined' && window.aiAssistant) {
+    console.log('🔄 AI Assistant already exists, skipping initialization');
 }

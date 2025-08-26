@@ -3173,6 +3173,10 @@ Etkinlik Organizasyon Ekibi`
             return;
         }
 
+        // Reset sending flags
+        this.sendingStopped = false;
+        this.sendingPaused = false;
+
         // Add unsubscribe link if checkbox is checked
         messageContent = this.addUnsubscribeLinkIfNeeded(messageContent);
 
@@ -5232,7 +5236,7 @@ Değişkenler:
 
     async loadAutomations() {
         try {
-            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+            if (window.supabaseClient && window.supabaseClient.isRealMode && window.supabaseClient.supabase) {
                 const { data: automations, error } = await window.supabaseClient.supabase
                     .from('campaigns')
                     .select('*')
@@ -5763,6 +5767,10 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
 
     async getAnalyticsOverview(days) {
         try {
+            if (!window.supabaseClient || !window.supabaseClient.supabase) {
+                throw new Error('Supabase client not available');
+            }
+            
             // Get message count from messages table
             const { data: messageData, error: messageError } = await window.supabaseClient.supabase
                 .from('messages')
@@ -5813,6 +5821,10 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
 
     async getCampaignAnalytics(days) {
         try {
+            if (!window.supabaseClient || !window.supabaseClient.supabase) {
+                throw new Error('Supabase client not available');
+            }
+            
             const { data, error } = await window.supabaseClient.supabase
                 .from('campaigns')
                 .select('name, type, sent_count, status, created_at')
@@ -5830,6 +5842,10 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
 
     async getMessageAnalytics(days) {
         try {
+            if (!window.supabaseClient || !window.supabaseClient.supabase) {
+                throw new Error('Supabase client not available');
+            }
+            
             const { data, error } = await window.supabaseClient.supabase
                 .from('messages')
                 .select('created_at, direction, type')
@@ -5846,6 +5862,10 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
 
     async getContactAnalytics(days) {
         try {
+            if (!window.supabaseClient || !window.supabaseClient.supabase) {
+                throw new Error('Supabase client not available');
+            }
+            
             const { data, error } = await window.supabaseClient.supabase
                 .from('contacts')
                 .select('created_at, last_message_at')
