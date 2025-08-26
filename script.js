@@ -961,6 +961,12 @@ window.WhatsAppCRM = class WhatsAppCRM {
                 const styledMessage = this.applyMessageTheme(message, selectedTheme);
                 
                 // Send text message only
+                console.log('🚀 Mesaj gönderiliyor:', {
+                    url: `${this.serverUrl}/whatsapp/send`,
+                    to: targetNumber,
+                    message: styledMessage
+                });
+                
                 const response = await fetch(`${this.serverUrl}/whatsapp/send`, {
                     method: 'POST',
                     headers: {
@@ -971,6 +977,9 @@ window.WhatsAppCRM = class WhatsAppCRM {
                         message: styledMessage
                     })
                 });
+                
+                console.log('📡 Response status:', response.status);
+                console.log('📡 Response ok:', response.ok);
 
                 const result = await response.json();
                 console.log('📱 Gönderim sonucu:', result);
