@@ -30,6 +30,7 @@ window.WhatsAppCRM = class WhatsAppCRM {
         this.setupModals();
         this.renderDashboard();
         this.loadSettings();
+        this.initializeAutomationSystem();
     }
 
     setupEventListeners() {
@@ -5111,6 +5112,518 @@ Değişkenler:
                 aiBtn.className = 'btn-secondary';
             }
         }
+    }
+
+    // ================================
+    // AUTOMATION SYSTEM
+    // ================================
+
+    initializeAutomationSystem() {
+        console.log('🤖 Initializing Automation System...');
+        
+        // Load existing automations from Supabase
+        this.loadAutomations();
+        
+        // Setup event listeners
+        this.setupAutomationEventListeners();
+    }
+
+    setupAutomationEventListeners() {
+        // New Automation button
+        const createAutomationBtn = document.getElementById('createAutomation');
+        if (createAutomationBtn) {
+            createAutomationBtn.addEventListener('click', () => {
+                this.showCreateAutomationModal();
+            });
+        }
+
+        // Automation type cards
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.automation-type-card')) {
+                const card = e.target.closest('.automation-type-card');
+                const type = card.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+                if (type) {
+                    this.createAutomationType(type);
+                }
+            }
+        });
+    }
+
+    async loadAutomations() {
+        try {
+            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+                const { data: automations, error } = await window.supabaseClient.supabase
+                    .from('campaigns')
+                    .select('*')
+                    .eq('type', 'automation');
+
+                if (error) throw error;
+
+                this.renderAutomations(automations || []);
+                console.log('✅ Automations loaded from Supabase:', automations?.length || 0);
+            } else {
+                // Demo mode disabled - show empty state
+                console.log('📝 Demo mode: No automations loaded');
+                this.renderAutomations([]);
+            }
+        } catch (error) {
+            console.error('❌ Failed to load automations:', error);
+            this.renderAutomations([]);
+        }
+    }
+
+
+
+    renderAutomations(automations) {
+        const container = document.querySelector('.active-automations');
+        if (!container) return;
+
+        const automationsList = container.querySelector('.automations-list') || 
+                                this.createAutomationsListElement(container);
+
+        if (automations.length === 0) {
+            automationsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-robot text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">Henüz otomasyon oluşturulmamış</p>
+                    <button class="btn-primary mt-4" onclick="document.getElementById('createAutomation').click()">
+                        İlk Otomasyonunu Oluştur
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        automationsList.innerHTML = automations.map(automation => `
+            <div class="automation-item" data-id="${automation.id}">
+                <div class="automation-header">
+                    <div class="automation-info">
+                        <h4>${automation.name}</h4>
+                        <span class="automation-type">${this.getAutomationTypeName(automation.subtype || automation.type)}</span>
+                    </div>
+                    <div class="automation-status ${automation.status}">
+                        <i class="fas fa-circle"></i>
+                        ${automation.status === 'active' ? 'Aktif' : 'Pasif'}
+                    </div>
+                </div>
+                <div class="automation-stats">
+                    <span class="stat">
+                        <i class="fas fa-paper-plane"></i>
+                        ${automation.sent_count || 0} gönderim
+                    </span>
+                    <span class="stat">
+                        <i class="fas fa-calendar"></i>
+                        ${new Date(automation.created_at).toLocaleDateString('tr-TR')}
+                    </span>
+                </div>
+                <div class="automation-actions">
+                    <button class="btn-secondary btn-sm" onclick="window.crm.editAutomation('${automation.id}')">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </button>
+                    <button class="btn-secondary btn-sm" onclick="window.crm.toggleAutomation('${automation.id}', '${automation.status}')">
+                        <i class="fas fa-${automation.status === 'active' ? 'pause' : 'play'}"></i>
+                        ${automation.status === 'active' ? 'Duraklat' : 'Başlat'}
+                    </button>
+                    <button class="btn-danger btn-sm" onclick="window.crm.deleteAutomation('${automation.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    createAutomationsListElement(container) {
+        const listElement = document.createElement('div');
+        listElement.className = 'automations-list';
+        container.appendChild(listElement);
+        return listElement;
+    }
+
+    getAutomationTypeName(type) {
+        const typeNames = {
+            'welcome': 'Hoş Geldin',
+            'birthday': 'Doğum Günü',
+            'followup': 'Takip',
+            'abandoned': 'Terk Edilen Sepet',
+            'reminder': 'Hatırlatma',
+            'survey': 'Anket'
+        };
+        return typeNames[type] || type;
+    }
+
+    createAutomationType(type) {
+        console.log('🤖 Creating automation type:', type);
+        this.showCreateAutomationModal(type);
+    }
+
+    showCreateAutomationModal(type = null) {
+        console.log('🤖 Showing create automation modal for type:', type);
+        
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('createAutomationModal');
+        if (!modal) {
+            modal = this.createAutomationModal();
+            document.body.appendChild(modal);
+        }
+
+        // Set form based on type
+        if (type) {
+            this.setupAutomationForm(type);
+        }
+
+        modal.classList.add('active');
+    }
+
+    createAutomationModal() {
+        const modal = document.createElement('div');
+        modal.id = 'createAutomationModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>
+                        <i class="fas fa-robot"></i>
+                        Yeni Otomasyon Oluştur
+                    </h2>
+                    <button class="modal-close" onclick="this.closest('.modal').classList.remove('active')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="automationForm">
+                        <div class="form-group">
+                            <label>Otomasyon Adı</label>
+                            <input type="text" id="automationName" placeholder="Örn: Hoş geldin mesajı" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Otomasyon Türü</label>
+                            <select id="automationType" required>
+                                <option value="welcome">Hoş Geldin Mesajı</option>
+                                <option value="birthday">Doğum Günü Tebriği</option>
+                                <option value="followup">Takip Mesajı</option>
+                                <option value="abandoned">Terk Edilen Sepet</option>
+                                <option value="reminder">Hatırlatma</option>
+                                <option value="survey">Anket</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tetikleme Koşulu</label>
+                            <select id="automationTrigger" required>
+                                <option value="new_contact">Yeni kişi eklendiğinde</option>
+                                <option value="birthday">Doğum günü geldiğinde</option>
+                                <option value="time_delay">Belirli süre sonra</option>
+                                <option value="keyword">Belirli kelime kullanıldığında</option>
+                                <option value="manual">Manuel tetikleme</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="delayGroup" style="display: none;">
+                            <label>Gecikme Süresi</label>
+                            <div class="input-group">
+                                <input type="number" id="delayAmount" min="1" value="1">
+                                <select id="delayUnit">
+                                    <option value="minutes">Dakika</option>
+                                    <option value="hours">Saat</option>
+                                    <option value="days">Gün</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="keywordGroup" style="display: none;">
+                            <label>Anahtar Kelimeler</label>
+                            <input type="text" id="triggerKeywords" placeholder="fiyat, ürün, bilgi (virgülle ayırın)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mesaj İçeriği</label>
+                            <textarea id="automationMessage" rows="6" placeholder="Merhaba {isim}! Mesajınız..." required></textarea>
+                            <div class="form-helper">
+                                Kullanabileceğiniz değişkenler: {isim}, {soyisim}, {tarih}, {saat}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hedef Kişiler</label>
+                            <select id="automationTarget">
+                                <option value="all">Tüm Kişiler</option>
+                                <option value="new">Sadece Yeni Kişiler</option>
+                                <option value="existing">Sadece Mevcut Kişiler</option>
+                                <option value="groups">Belirli Gruplar</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="automationActive" checked>
+                                <span class="checkmark"></span>
+                                Oluşturulduktan sonra aktif et
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="this.closest('.modal').classList.remove('active')">
+                        İptal
+                    </button>
+                    <button type="button" class="btn-primary" onclick="window.crm.saveAutomation()">
+                        <i class="fas fa-save"></i>
+                        Otomasyonu Kaydet
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Setup dynamic form behavior
+        modal.addEventListener('change', (e) => {
+            if (e.target.id === 'automationType') {
+                this.updateAutomationForm(e.target.value);
+            }
+            if (e.target.id === 'automationTrigger') {
+                this.updateTriggerOptions(e.target.value);
+            }
+        });
+
+        return modal;
+    }
+
+    setupAutomationForm(type) {
+        const typeSelect = document.getElementById('automationType');
+        const nameInput = document.getElementById('automationName');
+        const messageTextarea = document.getElementById('automationMessage');
+
+        if (typeSelect) typeSelect.value = type;
+        
+        const templates = {
+            'welcome': {
+                name: 'Hoş Geldin Mesajı',
+                message: `Merhaba {isim}! 
+
+Bizimle iletişime geçtiğiniz için teşekkür ederiz. Size nasıl yardımcı olabiliriz?
+
+Saygılarımızla,
+WhatsApp CRM Ekibi`
+            },
+            'birthday': {
+                name: 'Doğum Günü Tebriği',
+                message: `🎉 Doğum gününüz kutlu olsun {isim}! 🎂
+
+Bu özel gününüzde size özel %20 indirim fırsatımızdan yararlanabilirsiniz.
+
+Mutlu ve sağlıklı bir yaş dileriz! 🎈`
+            },
+            'followup': {
+                name: 'Takip Mesajı',
+                message: `Merhaba {isim},
+
+Son iletişimimizden sonra size nasıl yardımcı olabileceğimizi merak ediyoruz.
+
+Herhangi bir sorunuz varsa çekinmeden yazabilirsiniz!`
+            },
+            'abandoned': {
+                name: 'Terk Edilen Sepet Hatırlatması',
+                message: `Merhaba {isim},
+
+Sepetinizde unutulan ürünleriniz var! 🛒
+
+Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan devam edebilirsiniz.`
+            }
+        };
+
+        const template = templates[type];
+        if (template) {
+            if (nameInput) nameInput.value = template.name;
+            if (messageTextarea) messageTextarea.value = template.message;
+        }
+
+        this.updateAutomationForm(type);
+    }
+
+    updateAutomationForm(type) {
+        const triggerSelect = document.getElementById('automationTrigger');
+        if (!triggerSelect) return;
+
+        // Update trigger options based on automation type
+        const triggerOptions = {
+            'welcome': 'new_contact',
+            'birthday': 'birthday',
+            'followup': 'time_delay',
+            'abandoned': 'time_delay'
+        };
+
+        if (triggerOptions[type]) {
+            triggerSelect.value = triggerOptions[type];
+            this.updateTriggerOptions(triggerOptions[type]);
+        }
+    }
+
+    updateTriggerOptions(triggerType) {
+        const delayGroup = document.getElementById('delayGroup');
+        const keywordGroup = document.getElementById('keywordGroup');
+
+        // Hide all conditional groups
+        if (delayGroup) delayGroup.style.display = 'none';
+        if (keywordGroup) keywordGroup.style.display = 'none';
+
+        // Show relevant groups based on trigger type
+        if (triggerType === 'time_delay' && delayGroup) {
+            delayGroup.style.display = 'block';
+        }
+        if (triggerType === 'keyword' && keywordGroup) {
+            keywordGroup.style.display = 'block';
+        }
+    }
+
+    async saveAutomation() {
+        const form = document.getElementById('automationForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = {
+            name: document.getElementById('automationName').value,
+            type: document.getElementById('automationType').value,
+            trigger: document.getElementById('automationTrigger').value,
+            message: document.getElementById('automationMessage').value,
+            target: document.getElementById('automationTarget').value,
+            active: document.getElementById('automationActive').checked,
+            delay_amount: document.getElementById('delayAmount')?.value || null,
+            delay_unit: document.getElementById('delayUnit')?.value || null,
+            keywords: document.getElementById('triggerKeywords')?.value || null
+        };
+
+        try {
+            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+                const { data, error } = await window.supabaseClient.supabase
+                    .from('campaigns')
+                    .insert([{
+                        name: formData.name,
+                        type: 'automation',
+                        subtype: formData.type,
+                        message: formData.message,
+                        status: formData.active ? 'active' : 'inactive',
+                        settings: {
+                            trigger: formData.trigger,
+                            target: formData.target,
+                            delay_amount: formData.delay_amount,
+                            delay_unit: formData.delay_unit,
+                            keywords: formData.keywords?.split(',').map(k => k.trim()).filter(k => k)
+                        },
+                        created_at: new Date().toISOString()
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                console.log('✅ Automation saved to Supabase:', data);
+                this.showSuccessMessage('Otomasyon başarıyla oluşturuldu!');
+            } else {
+                console.log('📝 Demo mode: Automation would be saved:', formData);
+                this.showSuccessMessage('Demo modunda otomasyon oluşturuldu!');
+            }
+
+            // Close modal and refresh automations
+            document.getElementById('createAutomationModal').classList.remove('active');
+            this.loadAutomations();
+
+        } catch (error) {
+            console.error('❌ Failed to save automation:', error);
+            this.showErrorMessage('Otomasyon kaydedilemedi: ' + error.message);
+        }
+    }
+
+    async deleteAutomation(automationId) {
+        if (!confirm('Bu otomasyonu silmek istediğinizden emin misiniz?')) {
+            return;
+        }
+
+        try {
+            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+                const { error } = await window.supabaseClient.supabase
+                    .from('campaigns')
+                    .delete()
+                    .eq('id', automationId);
+
+                if (error) throw error;
+
+                console.log('✅ Automation deleted:', automationId);
+                this.showSuccessMessage('Otomasyon silindi!');
+            } else {
+                console.log('📝 Demo mode: Automation would be deleted:', automationId);
+                this.showSuccessMessage('Demo modunda otomasyon silindi!');
+            }
+
+            this.loadAutomations();
+
+        } catch (error) {
+            console.error('❌ Failed to delete automation:', error);
+            this.showErrorMessage('Otomasyon silinemedi: ' + error.message);
+        }
+    }
+
+    async toggleAutomation(automationId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+        try {
+            if (window.supabaseClient && window.supabaseClient.isRealMode) {
+                const { error } = await window.supabaseClient.supabase
+                    .from('campaigns')
+                    .update({ status: newStatus })
+                    .eq('id', automationId);
+
+                if (error) throw error;
+
+                console.log('✅ Automation status updated:', automationId, newStatus);
+                this.showSuccessMessage(`Otomasyon ${newStatus === 'active' ? 'aktif edildi' : 'durduruldu'}!`);
+            } else {
+                console.log('📝 Demo mode: Automation status would be updated:', automationId, newStatus);
+                this.showSuccessMessage(`Demo modunda otomasyon ${newStatus === 'active' ? 'aktif edildi' : 'durduruldu'}!`);
+            }
+
+            this.loadAutomations();
+
+        } catch (error) {
+            console.error('❌ Failed to toggle automation:', error);
+            this.showErrorMessage('Otomasyon durumu değiştirilemedi: ' + error.message);
+        }
+    }
+
+    editAutomation(automationId) {
+        console.log('🤖 Editing automation:', automationId);
+        // TODO: Implement edit functionality
+        this.showInfoMessage('Düzenleme özelliği yakında eklenecek!');
+    }
+
+    showSuccessMessage(message) {
+        this.showNotification(message, 'success');
+    }
+
+    showErrorMessage(message) {
+        this.showNotification(message, 'error');
+    }
+
+    showInfoMessage(message) {
+        this.showNotification(message, 'info');
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info'}-circle"></i>
+            <span>${message}</span>
+        `;
+
+        // Add to page
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 
 }; // End of WhatsAppCRM class definition
