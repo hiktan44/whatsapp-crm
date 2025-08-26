@@ -32,6 +32,11 @@ class AIAssistant {
                     this.isActive ? 'AI Asistan aktifleştirildi' : 'AI Asistan devre dışı bırakıldı',
                     'info'
                 );
+                
+                // Update UI status
+                if (window.crm && window.crm.updateAIStatus) {
+                    window.crm.updateAIStatus();
+                }
             });
         }
 
@@ -271,11 +276,33 @@ Sen: "Merhaba! Size nasıl yardımcı olabiliriz? Detaylı bilgi için kısa bir
     }
 
     async sendResponse(phoneNumber, message) {
-        // In real implementation, this would send via Evolution API
-        console.log(`Sending to ${phoneNumber}: ${message}`);
+        console.log(`🤖 AI Asistan yanıtı: ${phoneNumber} -> ${message}`);
         
-        // Simulate in UI
-        this.displayMessage(phoneNumber, message, 'sent');
+        // Send via WhatsApp API
+        try {
+            const response = await fetch('/whatsapp/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    to: phoneNumber,
+                    message: message
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                console.log('✅ AI mesajı başarıyla gönderildi:', result.messageId);
+                this.displayMessage(phoneNumber, message, 'sent');
+            } else {
+                console.error('❌ AI mesajı gönderilemedi:', result.error);
+            }
+        } catch (error) {
+            console.error('❌ AI mesaj gönderim hatası:', error);
+            // Fallback to UI display only
+            this.displayMessage(phoneNumber, message, 'sent');
+        }
     }
 
     sendFallbackResponse(phoneNumber) {

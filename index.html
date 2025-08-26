@@ -11,6 +11,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=20250825-0800-whatsapp-unsubscribe">
+    <!-- AI Assistant Script -->
+    <script src="ai-assistant.js"></script>
     <script src="script.js?v=20250825-0800-whatsapp-unsubscribe"></script>
 </head>
 <body>
@@ -25,6 +27,10 @@
                 <button class="btn-primary" id="connectWhatsApp">
                     <i class="fab fa-whatsapp"></i>
                     <span id="connectionStatus">WhatsApp'a Bağlan</span>
+                </button>
+                <button class="btn-secondary" id="aiSettingsBtn" onclick="crm.openAISettingsModal()" title="AI Asistan Ayarları">
+                    <i class="fas fa-robot"></i>
+                    <span class="ai-status" id="aiStatus">AI Kapalı</span>
                 </button>
                 <div class="user-profile">
                     <div class="profile-img">
@@ -1719,6 +1725,92 @@ Kullanabileceğiniz değişkenler:
             <div class="template-modal-footer">
                 <button class="template-cancel-btn" onclick="crm.closeTemplateSelector()">İptal</button>
                 <button class="template-select-btn" onclick="crm.applySelectedTemplate()" id="applyTemplateBtn" disabled>Şablonu Uygula</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Settings Modal -->
+    <div id="aiSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-robot"></i> AI Asistan Ayarları</h3>
+                <button class="modal-close" onclick="crm.closeAISettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-power-off"></i> AI Asistan Durumu
+                    </label>
+                    <div class="toggle-container">
+                        <label class="toggle">
+                            <input type="checkbox" id="aiAssistantToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-text">Otomatik yanıtları etkinleştir</span>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-clock"></i> Mesaj Bekleme Süresi
+                    </label>
+                    <select id="bufferDelay" class="form-select">
+                        <option value="15">15 saniye</option>
+                        <option value="25" selected>25 saniye</option>
+                        <option value="30">30 saniye</option>
+                        <option value="60">1 dakika</option>
+                    </select>
+                    <small class="help-text">Müşteri mesajları arasında beklenecek süre</small>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-business-time"></i> Çalışma Saatleri
+                    </label>
+                    <div class="time-range">
+                        <select id="workingStart" class="form-select time-select">
+                            <option value="8">08:00</option>
+                            <option value="9" selected>09:00</option>
+                            <option value="10">10:00</option>
+                        </select>
+                        <span>-</span>
+                        <select id="workingEnd" class="form-select time-select">
+                            <option value="17">17:00</option>
+                            <option value="18" selected>18:00</option>
+                            <option value="19">19:00</option>
+                            <option value="20">20:00</option>
+                        </select>
+                    </div>
+                    <small class="help-text">AI asistan bu saatler arasında randevu ayarlayabilir</small>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-calendar-alt"></i> Randevu Süresi
+                    </label>
+                    <select id="appointmentDuration" class="form-select">
+                        <option value="15">15 dakika</option>
+                        <option value="30" selected>30 dakika</option>
+                        <option value="45">45 dakika</option>
+                        <option value="60">1 saat</option>
+                    </select>
+                </div>
+                
+                <div class="settings-group">
+                    <label class="settings-label">
+                        <i class="fas fa-database"></i> Bilgi Bankası
+                    </label>
+                    <button class="btn-secondary" id="addKnowledgeBase">
+                        <i class="fas fa-plus"></i> Yeni Bilgi Ekle
+                    </button>
+                    <div class="knowledge-items" id="knowledgeItems">
+                        <!-- Knowledge base items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="crm.closeAISettingsModal()">İptal</button>
+                <button class="btn-primary" id="saveAISettings">Kaydet</button>
             </div>
         </div>
     </div>

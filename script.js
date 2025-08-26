@@ -462,6 +462,14 @@ window.WhatsAppCRM = class WhatsAppCRM {
                 this.handleWhatsAppReady();
             });
 
+            // AI Assistant message handler
+            this.socket.on('ai_message_received', (data) => {
+                if (window.aiAssistant && !data.message.isGroup) {
+                    console.log('🤖 AI Asistan\'a mesaj yönlendiriliyor:', data.phoneNumber);
+                    window.aiAssistant.addToBuffer(data.phoneNumber, data.message);
+                }
+            });
+
             // Evolution API entegrasyonu için güncellenmiş event handler'lar
             this.socket.on('status', (data) => {
                 console.log('📱 WhatsApp durumu:', data.status);
@@ -5043,6 +5051,56 @@ Değişkenler:
             
         } catch (error) {
             console.log('Dashboard stat güncelleme hatası:', error);
+        }
+    }
+
+    // AI Assistant Modal Functions
+    openAISettingsModal() {
+        const modal = document.getElementById('aiSettingsModal');
+        if (modal) {
+            modal.classList.add('active');
+            this.loadAISettings();
+        }
+    }
+
+    closeAISettingsModal() {
+        const modal = document.getElementById('aiSettingsModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    loadAISettings() {
+        // Load current AI settings into the modal
+        if (window.aiAssistant) {
+            const toggle = document.getElementById('aiAssistantToggle');
+            const bufferDelay = document.getElementById('bufferDelay');
+            const workingStart = document.getElementById('workingStart');
+            const workingEnd = document.getElementById('workingEnd');
+            const appointmentDuration = document.getElementById('appointmentDuration');
+
+            if (toggle) toggle.checked = window.aiAssistant.isActive;
+            if (bufferDelay) bufferDelay.value = (window.aiAssistant.settings.bufferDelay / 1000).toString();
+            if (workingStart) workingStart.value = window.aiAssistant.settings.workingHours.start.toString();
+            if (workingEnd) workingEnd.value = window.aiAssistant.settings.workingHours.end.toString();
+            if (appointmentDuration) appointmentDuration.value = window.aiAssistant.settings.appointmentDuration.toString();
+        }
+    }
+
+    updateAIStatus() {
+        const aiStatus = document.getElementById('aiStatus');
+        const aiBtn = document.getElementById('aiSettingsBtn');
+        
+        if (window.aiAssistant && aiStatus && aiBtn) {
+            if (window.aiAssistant.isActive) {
+                aiStatus.textContent = 'AI Aktif';
+                aiStatus.className = 'ai-status active';
+                aiBtn.className = 'btn-secondary ai-active';
+            } else {
+                aiStatus.textContent = 'AI Kapalı';
+                aiStatus.className = 'ai-status';
+                aiBtn.className = 'btn-secondary';
+            }
         }
     }
 

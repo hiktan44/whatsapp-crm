@@ -175,13 +175,24 @@ client.on('message', async (message) => {
         }
     }
     
-    // Forward message to CRM (if needed for auto-replies)
+    // Forward message to CRM and AI Assistant
     connectedSockets.forEach(socket => {
         socket.emit('message_received', {
             from: message.from,
             body: message.body,
             timestamp: message.timestamp,
             isGroup: message.isGroupMsg
+        });
+        
+        // Forward to AI Assistant if enabled
+        socket.emit('ai_message_received', {
+            phoneNumber: message.from,
+            message: {
+                content: message.body,
+                type: 'text',
+                timestamp: message.timestamp,
+                isGroup: message.isGroupMsg
+            }
         });
     });
 });
