@@ -85,11 +85,14 @@ Modern WhatsApp tabanlı müşteri ilişkileri yönetim sistemi. Gerçek WhatsAp
 
 ## 🛠️ Teknolojiler
 
-- **Backend:** Node.js, Express.js
+- **Backend:** Node.js, Express.js, Netlify Functions
+- **Database:** Supabase (PostgreSQL)
+- **Real-time:** Supabase Realtime + Socket.IO
 - **WhatsApp:** WhatsApp Web.js
-- **Real-time:** Socket.IO
+- **AI Integration:** Model Context Protocol (MCP)
 - **Frontend:** Vanilla JavaScript, HTML5, CSS3
-- **Database:** LocalAuth (sessions)
+- **Deployment:** Netlify + Supabase
+- **Authentication:** Supabase Auth
 
 ## 📁 Dosya Yapısı
 
