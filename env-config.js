@@ -25,7 +25,7 @@ window.ENV_CONFIG = {
     
     // WhatsApp Server endpoint configuration
     WHATSAPP_SERVER: isNetlifyRuntime 
-        ? 'https://whatsapp-server-[YOUR_RENDER_URL].onrender.com'  // Will be updated after Render deployment
+        ? 'https://whatsappcrm-production.up.railway.app'  // Railway deployment URL
         : 'http://localhost:3025',
     
     // Environment indicator
