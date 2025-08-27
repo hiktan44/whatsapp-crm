@@ -113,7 +113,9 @@ client.on('qr', (qr) => {
     currentQR = qr;
     
     // Send QR to all connected clients
+    console.log('📡 RAILWAY CLOUD: Broadcasting QR to', connectedSockets.size, 'clients');
     connectedSockets.forEach(socket => {
+        console.log('📱 Sending QR to client:', socket.id);
         socket.emit('qr', qr);
     });
 });
@@ -205,7 +207,8 @@ client.on('message', async (message) => {
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
+    console.log('🌐 RAILWAY CLOUD: Client connected from', socket.handshake.address, 'ID:', socket.id);
+    console.log('🔗 Total connected clients:', connectedSockets.size + 1);
     connectedSockets.add(socket);
 
     // Send current status
