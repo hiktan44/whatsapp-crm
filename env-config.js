@@ -50,7 +50,15 @@ console.log('🔧 Environment Configuration:', {
     supabaseUrl: window.ENV_CONFIG.SUPABASE_URL ? '✅ Set' : '❌ Missing',
     supabaseKey: window.ENV_CONFIG.SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing',
     apiEndpoint: window.ENV_CONFIG.API_ENDPOINT,
+    whatsappServer: window.ENV_CONFIG.WHATSAPP_SERVER,
     debug: window.ENV_CONFIG.DEBUG
+});
+
+// Railway deployment debug
+console.log('🚀 RAILWAY DEPLOYMENT ACTIVE:', {
+    whatsappServer: window.ENV_CONFIG.WHATSAPP_SERVER,
+    isNetlify: window.ENV_CONFIG.ENVIRONMENT === 'netlify',
+    timestamp: new Date().toISOString()
 });
 
 // Export for module systems
