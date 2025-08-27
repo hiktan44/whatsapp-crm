@@ -4834,22 +4834,24 @@ Değişkenler:
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                console.log('📁 File loaded:', file.name, 'Size:', file.size);
+                // Don't log file content to avoid binary data in console
                 const content = e.target.result;
                 let contacts = [];
                 
                 if (file.name.endsWith('.csv')) {
-                    console.log('📄 Processing CSV file...');
                     contacts = this.parseCSV(content);
                 } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    console.log('📊 Processing Excel file...');
                     contacts = this.parseExcel(content);
                 } else {
                     this.showNotification('Desteklenmeyen dosya formatı. CSV veya Excel kullanın.', 'error');
                     return;
                 }
                 
-                console.log('👥 Parsed contacts:', contacts.length);
+                // Only log the count, not the content
+                if (contacts.length > 0) {
+                    this.showNotification(`${contacts.length} kişi başarıyla import edildi!`, 'success');
+                }
+                
                 this.importParsedContacts(contacts);
                 
             } catch (error) {
@@ -4865,10 +4867,8 @@ Değişkenler:
         
         // Use different read methods for different file types
         if (file.name.endsWith('.csv')) {
-            console.log('📄 Reading CSV as text...');
             reader.readAsText(file, 'UTF-8');
         } else {
-            console.log('📊 Reading Excel as ArrayBuffer...');
             reader.readAsArrayBuffer(file);
         }
     }
@@ -4876,8 +4876,6 @@ Değişkenler:
     // Excel parse et
     parseExcel(arrayBuffer) {
         try {
-            console.log('📊 Excel parsing started...');
-            
             // Ensure XLSX library is loaded
             if (typeof XLSX === 'undefined') {
                 throw new Error('XLSX kütüphanesi yüklenmedi');
@@ -4889,8 +4887,6 @@ Değişkenler:
                 cellNF: false,
                 cellText: false
             });
-            
-            console.log('📋 Workbook sheets:', workbook.SheetNames);
             
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
