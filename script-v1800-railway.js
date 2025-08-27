@@ -4834,30 +4834,41 @@ Değişkenler:
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
+                console.log('📁 File loaded:', file.name, 'Size:', file.size);
                 const content = e.target.result;
                 let contacts = [];
                 
                 if (file.name.endsWith('.csv')) {
+                    console.log('📄 Processing CSV file...');
                     contacts = this.parseCSV(content);
                 } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    console.log('📊 Processing Excel file...');
                     contacts = this.parseExcel(content);
                 } else {
                     this.showNotification('Desteklenmeyen dosya formatı. CSV veya Excel kullanın.', 'error');
                     return;
                 }
                 
+                console.log('👥 Parsed contacts:', contacts.length);
                 this.importParsedContacts(contacts);
                 
             } catch (error) {
-                console.error('Dosya okuma hatası:', error);
+                console.error('📛 Dosya okuma hatası:', error);
                 this.showNotification('Dosya okunamadı: ' + error.message, 'error');
             }
         };
         
+        reader.onerror = (error) => {
+            console.error('📛 FileReader error:', error);
+            this.showNotification('Dosya okuma hatası oluştu.', 'error');
+        };
+        
         // Use different read methods for different file types
         if (file.name.endsWith('.csv')) {
-            reader.readAsText(file);
+            console.log('📄 Reading CSV as text...');
+            reader.readAsText(file, 'UTF-8');
         } else {
+            console.log('📊 Reading Excel as ArrayBuffer...');
             reader.readAsArrayBuffer(file);
         }
     }
@@ -4865,10 +4876,29 @@ Değişkenler:
     // Excel parse et
     parseExcel(arrayBuffer) {
         try {
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            console.log('📊 Excel parsing started...');
+            
+            // Ensure XLSX library is loaded
+            if (typeof XLSX === 'undefined') {
+                throw new Error('XLSX kütüphanesi yüklenmedi');
+            }
+            
+            const workbook = XLSX.read(arrayBuffer, { 
+                type: 'array',
+                cellDates: true,
+                cellNF: false,
+                cellText: false
+            });
+            
+            console.log('📋 Workbook sheets:', workbook.SheetNames);
+            
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                header: 1,
+                raw: false,
+                defval: ''
+            });
             
             const contacts = [];
             
