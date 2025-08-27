@@ -23,6 +23,11 @@ window.ENV_CONFIG = {
         ? '/.netlify/functions'
         : 'http://localhost:3025',
     
+    // WhatsApp Server endpoint configuration
+    WHATSAPP_SERVER: isNetlifyRuntime 
+        ? 'https://whatsapp-server-[YOUR_RENDER_URL].onrender.com'  // Will be updated after Render deployment
+        : 'http://localhost:3025',
+    
     // Environment indicator
     ENVIRONMENT: isNetlifyRuntime ? 'netlify' : 'local',
     

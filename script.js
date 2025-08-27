@@ -15,7 +15,8 @@ window.WhatsAppCRM = class WhatsAppCRM {
         this.socket = null;
         this.qrCode = null;
         this.connectionStatus = 'disconnected';
-        this.serverUrl = 'http://localhost:3025'; // WhatsApp Web.js server URL
+        // WhatsApp server URL from environment config
+        this.serverUrl = window.ENV_CONFIG?.WHATSAPP_SERVER || 'http://localhost:3025';
         this.selectedFiles = []; // Array to store selected files
         this.messageTemplates = this.initMessageTemplates();
         this.broadcastLists = this.initBroadcastLists();
@@ -24,14 +25,14 @@ window.WhatsAppCRM = class WhatsAppCRM {
         this.initializeWhatsAppConnection();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
         this.setupNavigation();
         this.setupModals();
         this.renderDashboard();
         this.loadSettings();
-        this.initializeAutomationSystem();
-        this.initializeAnalyticsSystem();
+        await this.initializeAutomationSystem();
+        await this.initializeAnalyticsSystem();
         this.initializeSettingsSystem();
     }
 
@@ -1020,13 +1021,22 @@ window.WhatsAppCRM = class WhatsAppCRM {
             });
 
             console.log('🚀 FormData gönderiliyor...');
-            const response = await fetch(`${this.serverUrl}/whatsapp/send-media`, {
-                method: 'POST',
-                body: formData
-            });
+            
+            try {
+                const response = await fetch(`${this.serverUrl}/whatsapp/send-media`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            const result = await response.json();
-            console.log('📱 Medya gönderim sonucu:', result);
+                console.log('📡 Media Response status:', response.status);
+                console.log('📡 Media Response ok:', response.ok);
+
+                const result = await response.json();
+                console.log('📱 Medya gönderim sonucu:', result);
+            } catch (error) {
+                console.error('❌ Media send fetch error:', error);
+                throw error;
+            }
             
             if (response.ok && result.success !== false) {
                 // Check individual file results
@@ -5203,14 +5213,19 @@ Değişkenler:
     // AUTOMATION SYSTEM
     // ================================
 
-    initializeAutomationSystem() {
+    async initializeAutomationSystem() {
         console.log('🤖 Initializing Automation System...');
-        
-        // Load existing automations from Supabase
-        this.loadAutomations();
         
         // Setup event listeners
         this.setupAutomationEventListeners();
+        
+        // Wait for Supabase client if needed  
+        if (window.supabaseClient && window.supabaseClient.isRealMode) {
+            await this.waitForSupabaseClient();
+        }
+        
+        // Load existing automations from Supabase
+        this.loadAutomations();
     }
 
     setupAutomationEventListeners() {
@@ -5715,14 +5730,39 @@ Bu özel fırsatları kaçırmayın. Siparişinizi tamamlamak için buradan deva
     // ANALYTICS SYSTEM
     // ================================
 
-    initializeAnalyticsSystem() {
+    async initializeAnalyticsSystem() {
         console.log('📊 Initializing Analytics System...');
         
         // Setup date range picker
         this.setupAnalyticsEventListeners();
         
+        // Wait for Supabase client with retry mechanism
+        await this.waitForSupabaseClient();
+        
         // Load initial analytics
         this.loadAnalytics();
+    }
+    
+    async waitForSupabaseClient(maxRetries = 15, delay = 300) {
+        for (let i = 0; i < maxRetries; i++) {
+            if (window.supabaseClient && 
+                window.supabaseClient.supabase && 
+                window.supabaseClient.isRealMode &&
+                typeof window.supabaseClient.supabase.from === 'function') {
+                console.log('✅ Supabase client ready for analytics');
+                return true;
+            }
+            console.log(`⏳ Waiting for Supabase client... (${i + 1}/${maxRetries})`);
+            console.log('🔍 Current state:', {
+                hasClient: !!window.supabaseClient,
+                hasSupabase: !!(window.supabaseClient && window.supabaseClient.supabase),
+                isRealMode: !!(window.supabaseClient && window.supabaseClient.isRealMode),
+                hasFromMethod: !!(window.supabaseClient && window.supabaseClient.supabase && typeof window.supabaseClient.supabase.from === 'function')
+            });
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        console.warn('⚠️ Supabase client not ready after 15 attempts, falling back to demo mode');
+        return false;
     }
 
     setupAnalyticsEventListeners() {

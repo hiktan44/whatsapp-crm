@@ -934,7 +934,7 @@ process.on('SIGINT', async () => {
     });
 });
 
-// Start server
+// Start server - Render uses PORT 10000, local development uses 3025
 const PORT = process.env.PORT || 3025;
 server.listen(PORT, () => {
     console.log(`🚀 WhatsApp CRM Server running on port ${PORT}`);

@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: whatsapp-server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node whatsapp-server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+    disk:
+      name: whatsapp-data
+      mountPath: /opt/render/project/src/whatsapp-auth
+      sizeGB: 1

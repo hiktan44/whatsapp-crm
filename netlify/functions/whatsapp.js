@@ -159,6 +159,35 @@ exports.handler = async (event, context) => {
             }
         }
 
+        // Send media message endpoint
+        if (path === '/send-media' && method === 'POST') {
+            try {
+                // In Netlify functions, we can't handle file uploads directly
+                // This is a limitation of serverless functions
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({
+                        success: true,
+                        messageId: `media_demo_${Date.now()}`,
+                        timestamp: new Date().toISOString(),
+                        note: 'DEMO MODE: Media messages require local WhatsApp server',
+                        message: 'Media upload completed in demo mode'
+                    })
+                };
+            } catch (error) {
+                console.error('Media send error:', error);
+                return {
+                    statusCode: 500,
+                    headers,
+                    body: JSON.stringify({
+                        success: false,
+                        error: error.message
+                    })
+                };
+            }
+        }
+
         // Contacts endpoint - Get from Supabase
         if (path === '/contacts' && method === 'GET') {
             try {
@@ -246,6 +275,7 @@ exports.handler = async (event, context) => {
                     'GET /health',
                     'GET /status', 
                     'POST /send',
+                    'POST /send-media',
                     'GET /contacts',
                     'GET /groups'
                 ]
