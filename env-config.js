@@ -61,6 +61,17 @@ console.log('🚀 RAILWAY DEPLOYMENT ACTIVE:', {
     timestamp: new Date().toISOString()
 });
 
+// AGGRESSIVE CACHE DEBUG
+console.log('🔥 CACHE KILLER v1800:', {
+    isNetlifyRuntime: typeof window !== 'undefined' && window.location.hostname.includes('netlify.app'),
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'unknown',
+    whatsappURL: window.ENV_CONFIG.WHATSAPP_SERVER,
+    cacheKiller: '20250826-1800-CACHE-KILLER'
+});
+
+// Store for global access
+window.WHATSAPP_SERVER_URL = window.ENV_CONFIG.WHATSAPP_SERVER;
+
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = window.ENV_CONFIG;
